@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { LoginRequest, LoginResponse } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_TARGET = import.meta.env.VITE_API_TARGET || 'http://localhost:3001';
 
 const client = axios.create({
-  baseURL: API_URL,
+  baseURL: API_TARGET,
   headers: {
     'Content-Type': 'application/json',
   },

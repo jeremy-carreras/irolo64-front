@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
 import { DepartmentsPage } from './pages/Departments';
 import { DepartmentDetailPage } from './pages/DepartmentDetail';
+import ReceiptsAdmin from './pages/ReceiptsAdmin';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -61,6 +62,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <DepartmentDetailPage onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/receipts"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ReceiptsAdmin onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
