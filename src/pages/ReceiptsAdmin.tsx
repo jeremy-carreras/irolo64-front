@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
 import '../styles/ReceiptsAdmin.css';
+import client from '../api/client';
 
 interface Receipt {
   id: string;
@@ -14,8 +15,6 @@ interface Receipt {
 interface ReceiptsAdminProps {
   onLogout: () => void;
 }
-
-const API_TARGET = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -37,15 +36,8 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
   const loadReceipts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_TARGET}/receipts`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error('Error loading receipts');
-      const data = await response.json();
-      setReceipts(data);
+      const response = await client.get('/receipts');
+      setReceipts(response.data);
     } catch (err) {
       console.error('Error loading receipts:', err);
       setError('Error al cargar recibos');
@@ -65,7 +57,6 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
       const body = {
         totalCharge: parseFloat(form.totalCharge),
         pricePerM3: parseFloat(form.pricePerM3),
@@ -74,19 +65,11 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
         paymentDeadline: form.paymentDeadline,
       };
 
-      const method = editingId ? 'PATCH' : 'POST';
-      const url = editingId ? `${API_TARGET}/receipts/${editingId}` : `${API_TARGET}/receipts`;
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) throw new Error('Error saving receipt');
+      if (editingId) {
+        await client.patch(`/receipts/${editingId}`, body);
+      } else {
+        await client.post('/receipts', body);
+      }
 
       setForm({
         totalCharge: '',
@@ -132,15 +115,7 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
     if (window.confirm('¿Eliminar este recibo?')) {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_TARGET}/receipts/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error('Error deleting receipt');
+        await client.delete(`/receipts/${id}`);
         loadReceipts();
         alert('Recibo eliminado');
       } catch (err) {
