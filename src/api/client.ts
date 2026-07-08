@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { LoginRequest, LoginResponse } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = (import.meta.env.VITE_API_URL as string | undefined) || '/api';
 
 const client = axios.create({
   baseURL: API_URL,
