@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Building2, LogOut } from 'lucide-react';
+import { Menu, X, Building2, FileText, LogOut } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -49,7 +49,7 @@ export function Layout({ children, onLogout }: LayoutProps) {
 
       {/* Menu Dropdown */}
       {isMenuOpen && (
-        <div className="absolute right-4 top-20 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-40">
+        <div className="fixed right-4 top-20 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-40">
           {/* Menu Items */}
           <nav className="py-2">
             <Link
@@ -63,6 +63,18 @@ export function Layout({ children, onLogout }: LayoutProps) {
             >
               <Building2 size={18} />
               <span className="font-medium">Departamentos</span>
+            </Link>
+            <Link
+              to="/receipts"
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 transition-colors ${
+                location.pathname === '/receipts'
+                  ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <FileText size={18} />
+              <span className="font-medium">Recibos</span>
             </Link>
           </nav>
 

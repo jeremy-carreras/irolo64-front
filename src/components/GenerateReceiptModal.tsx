@@ -1,7 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { X, Loader2, FileText, Eye } from 'lucide-react';
 import { Department, WaterReading } from '../types';
 import { generateReceiptPDF, calculateReceipt } from '../utils/pdfGenerator';
+
+interface Receipt {
+  id: string;
+  totalCharge: number;
+  periodStart: string;
+  periodEnd: string;
+  pricePerM3: number;
+  paymentDeadline: string;
+}
 
 interface GenerateReceiptModalProps {
   isOpen: boolean;
@@ -10,12 +20,18 @@ interface GenerateReceiptModalProps {
   onClose: () => void;
 }
 
+const API_TARGET = import.meta.env.VITE_API_TARGET || 'http://localhost:3001';
+const client = axios.create({ baseURL: API_TARGET });
+
 export function GenerateReceiptModal({
   isOpen,
   department,
   readings,
   onClose,
 }: GenerateReceiptModalProps) {
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+  const [useManual, setUseManual] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [pricePerM3, setPricePerM3] = useState('');
@@ -23,6 +39,29 @@ export function GenerateReceiptModal({
   const [error, setError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
+
+  useEffect(() => {
+    if (isOpen && department) {
+      loadReceipts();
+    }
+  }, [isOpen, department]);
+
+  const loadReceipts = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_TARGET}/receipts`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error('Error loading receipts');
+      const data = await response.json();
+      setReceipts(data);
+    } catch (err) {
+      console.error('Error loading receipts:', err);
+      setError('Error al cargar recibos');
+    }
+  };
 
   if (!isOpen || !department) return null;
 
@@ -48,20 +87,27 @@ export function GenerateReceiptModal({
   const handlePreview = () => {
     setError('');
 
-    if (!validateForm()) return;
+    let start, end, price;
+
+    if (selectedReceipt && !useManual) {
+      start = new Date(selectedReceipt.periodStart).toISOString().split('T')[0];
+      end = new Date(selectedReceipt.periodEnd).toISOString().split('T')[0];
+      price = parseFloat(String(selectedReceipt.pricePerM3));
+    } else {
+      if (!validateForm()) return;
+      start = startDate;
+      end = endDate;
+      price = parseFloat(pricePerM3);
+    }
 
     try {
-      const receipt = calculateReceipt(
-        readings,
-        startDate,
-        endDate,
-        parseFloat(pricePerM3)
-      );
+      const receipt = calculateReceipt(readings, start, end, price);
       setPreviewData({
-        startDate,
-        endDate,
-        pricePerM3: parseFloat(pricePerM3),
+        startDate: start,
+        endDate: end,
+        pricePerM3: price,
         receipt,
+        selectedReceiptId: selectedReceipt?.id,
       });
       setShowPreview(true);
     } catch (err) {
@@ -178,7 +224,7 @@ export function GenerateReceiptModal({
                 <div className="flex justify-between">
                   <span className="text-gray-700">Precio por m³:</span>
                   <span className="font-semibold text-gray-900">
-                    ${previewData.pricePerM3.toFixed(2)}
+                    ${parseFloat(String(previewData.pricePerM3)).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -239,7 +285,7 @@ export function GenerateReceiptModal({
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
           <div className="flex items-center gap-3">
             <FileText className="text-blue-600" size={24} />
-            <h2 className="text-xl font-bold text-gray-900">Generar Recibo</h2>
+            <h2 className="text-xl font-bold text-gray-900">Generar Recibo Individual</h2>
           </div>
           <button
             onClick={onClose}
@@ -264,52 +310,97 @@ export function GenerateReceiptModal({
             )}
           </div>
 
-          {/* Fecha Inicio */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Fecha Inicio del Período
-            </label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              disabled={loading}
-              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
-            />
-          </div>
-
-          {/* Fecha Fin */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Fecha Fin del Período
-            </label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              disabled={loading}
-              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
-            />
-          </div>
-
-          {/* Precio por m3 */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Precio por m³
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">$</span>
-              <input
-                type="number"
-                step="0.01"
-                value={pricePerM3}
-                onChange={(e) => setPricePerM3(e.target.value)}
+          {/* Recibos Disponibles */}
+          {receipts.length > 0 && !useManual && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Selecciona un Recibo General
+              </label>
+              <select
+                value={selectedReceipt?.id || ''}
+                onChange={(e) => {
+                  const receipt = receipts.find(r => r.id === e.target.value);
+                  setSelectedReceipt(receipt || null);
+                }}
                 disabled={loading}
-                placeholder="0.00"
-                className="w-full border-2 border-gray-200 rounded-lg px-4 pl-8 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
-              />
+                className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
+              >
+                <option value="">Elige un recibo general</option>
+                {receipts.map((receipt) => (
+                  <option key={receipt.id} value={receipt.id}>
+                    {new Date(receipt.periodStart).toLocaleDateString()} - {new Date(receipt.periodEnd).toLocaleDateString()} | Cargo: ${parseFloat(String(receipt.totalCharge)).toFixed(2)}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => setUseManual(true)}
+                className="text-xs text-blue-600 mt-2 hover:underline"
+              >
+                O ingresar datos manualmente
+              </button>
             </div>
-          </div>
+          )}
+
+          {/* Manual Entry */}
+          {(useManual || receipts.length === 0) && (
+            <>
+              {receipts.length > 0 && (
+                <button
+                  onClick={() => setUseManual(false)}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  ← Usar recibo existente
+                </button>
+              )}
+
+              {/* Fecha Inicio */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Fecha Inicio del Período
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  disabled={loading}
+                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
+                />
+              </div>
+
+              {/* Fecha Fin */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Fecha Fin del Período
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  disabled={loading}
+                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
+                />
+              </div>
+
+              {/* Precio por m3 */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Precio por m³
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={pricePerM3}
+                    onChange={(e) => setPricePerM3(e.target.value)}
+                    disabled={loading}
+                    placeholder="0.00"
+                    className="w-full border-2 border-gray-200 rounded-lg px-4 pl-8 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Error */}
           {error && (
