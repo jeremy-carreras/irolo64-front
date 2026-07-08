@@ -147,19 +147,19 @@ export function DepartmentFormModal({
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 order-2 sm:order-1"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg hover:shadow-xl"
+              className="px-5 py-2.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl order-1 sm:order-2"
             >
               {loading ? (
                 <>

@@ -237,19 +237,19 @@ export function DepartmentsPage({ onLogout }: DepartmentsPageProps) {
 
                   {/* Actions */}
                   <div
-                    className="flex gap-2 p-3"
+                    className="flex flex-col gap-2 p-3"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
                       onClick={() => handleOpenModal(dept)}
-                      className="flex-1 text-sm text-yellow-600 hover:bg-yellow-50 py-2 rounded font-medium transition-colors"
+                      className="text-sm text-yellow-600 hover:bg-yellow-50 py-2.5 px-3 rounded font-medium transition-colors border border-yellow-200 hover:border-yellow-400"
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => handleDeleteClick(dept.id)}
                       disabled={deleting === dept.id}
-                      className="flex-1 text-sm text-red-600 hover:bg-red-50 py-2 rounded font-medium transition-colors disabled:opacity-50"
+                      className="text-sm text-red-600 hover:bg-red-50 py-2.5 px-3 rounded font-medium transition-colors disabled:opacity-50 border border-red-200 hover:border-red-400"
                     >
                       Eliminar
                     </button>

@@ -224,7 +224,7 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
               {loading ? 'Guardando...' : editingId ? 'Actualizar Recibo' : 'Cargar Recibo'}
             </button>
             {editingId && (
-              <button type="button" className="btn-secondary" onClick={handleCancel} disabled={loading}>
+              <button type="button" className="btn-secondary" onClick={handleCancel} disabled={loading} style={{ marginRight: 0 }}>
                 Cancelar
               </button>
             )}

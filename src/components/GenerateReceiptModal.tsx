@@ -104,7 +104,7 @@ export function GenerateReceiptModal({
   if (showPreview && previewData) {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl border border-gray-200 max-h-96 overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl border border-gray-200 max-h-[85vh] overflow-y-auto">
           {/* Preview Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0">
             <div className="flex items-center gap-3">
@@ -210,18 +210,18 @@ export function GenerateReceiptModal({
           </div>
 
           {/* Preview Buttons */}
-          <div className="flex gap-3 justify-end p-6 border-t border-gray-200 bg-gray-50">
+          <div className="flex flex-col sm:flex-row gap-3 sm:justify-end p-6 border-t border-gray-200 bg-gray-50">
             <button
               onClick={() => setShowPreview(false)}
               disabled={loading}
-              className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+              className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 order-2 sm:order-1"
             >
               Volver
             </button>
             <button
               onClick={handleGenerateReceipt}
               disabled={loading}
-              className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg hover:shadow-xl"
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl order-1 sm:order-2"
             >
               {loading ? (
                 <>
@@ -312,18 +312,18 @@ export function GenerateReceiptModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3 justify-end p-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row gap-3 sm:justify-end p-6 border-t border-gray-200">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 order-2 sm:order-1"
           >
             Cancelar
           </button>
           <button
             onClick={handlePreview}
             disabled={loading}
-            className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg hover:shadow-xl"
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl order-1 sm:order-2"
           >
             {loading ? (
               <>
