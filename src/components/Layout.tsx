@@ -24,8 +24,8 @@ export function Layout({ children, onLogout }: LayoutProps) {
         <div className="flex items-center justify-between px-4 py-4">
           {/* Logo */}
           <Link to="/departments" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center">
-              <Building2 size={22} className="text-gray-900" />
+            <div className="w-11 h-11 rounded-lg overflow-hidden">
+              <img src="/img/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-900">Palma Irolo</h1>
