@@ -88,6 +88,18 @@ export function Layout({ children, onLogout }: LayoutProps) {
               <Droplet size={18} />
               <span className="font-medium">Ingresar Medición</span>
             </Link>
+            <Link
+              to="/water-readings/history"
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 transition-colors ${
+                location.pathname === '/water-readings/history'
+                  ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Droplet size={18} />
+              <span className="font-medium">Lectura de Agua</span>
+            </Link>
           </nav>
 
           {/* Divider */}

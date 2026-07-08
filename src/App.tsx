@@ -5,6 +5,7 @@ import { DepartmentsPage } from './pages/Departments';
 import { DepartmentDetailPage } from './pages/DepartmentDetail';
 import ReceiptsAdmin from './pages/ReceiptsAdmin';
 import WaterReadingsBulk from './pages/WaterReadingsBulk';
+import WaterReadingsHistory from './pages/WaterReadingsHistory';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -79,6 +80,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <WaterReadingsBulk onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/water-readings/history"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WaterReadingsHistory onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />

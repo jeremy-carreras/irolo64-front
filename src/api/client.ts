@@ -50,6 +50,9 @@ export const waterReadingsAPI = {
     client.get(`/departments/${departmentId}/water-readings`),
   create: (departmentId: string, data: any) =>
     client.post(`/departments/${departmentId}/water-readings`, data),
+  getAll: () => client.get('/water-readings/all'),
+  getByDate: (date: string) => client.get(`/water-readings/by-date/${date}`),
+  getById: (id: string) => client.get(`/water-readings/${id}`),
   update: (id: string, data: any) =>
     client.patch(`/water-readings/${id}`, data),
   delete: (id: string) => client.delete(`/water-readings/${id}`),
