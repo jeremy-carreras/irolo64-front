@@ -16,6 +16,11 @@ interface ReceiptsAdminProps {
   onLogout: () => void;
 }
 
+const formatDate = (dateString: string) => {
+  const [year, month, day] = dateString.split('T')[0].split('-');
+  return `${day}/${month}/${year}`;
+};
+
 export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [form, setForm] = useState({
@@ -28,10 +33,18 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     loadReceipts();
   }, []);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const loadReceipts = async () => {
     try {
@@ -80,7 +93,7 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
       });
       setEditingId(null);
       loadReceipts();
-      alert(editingId ? 'Recibo actualizado' : 'Recibo cargado exitosamente');
+      setSuccess(editingId ? 'Recibo actualizado' : 'Recibo cargado exitosamente');
     } catch (err) {
       console.error('Error saving receipt:', err);
       setError('Error al guardar el recibo');
@@ -117,7 +130,7 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
         setLoading(true);
         await client.delete(`/receipts/${id}`);
         loadReceipts();
-        alert('Recibo eliminado');
+        setSuccess('Recibo eliminado');
       } catch (err) {
         console.error('Error deleting receipt:', err);
         setError('Error al eliminar el recibo');
@@ -200,6 +213,12 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
             </div>
           )}
 
+          {success && (
+            <div className="success-message">
+              {success}
+            </div>
+          )}
+
           <div className="form-actions">
             <button type="submit" className="btn-primary" disabled={loading}>
               {loading ? 'Guardando...' : editingId ? 'Actualizar Recibo' : 'Cargar Recibo'}
@@ -233,11 +252,11 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
                 <tr key={receipt.id}>
                   <td>${parseFloat(String(receipt.totalCharge)).toFixed(2)}</td>
                   <td>
-                    {new Date(receipt.periodStart).toLocaleDateString()} -{' '}
-                    {new Date(receipt.periodEnd).toLocaleDateString()}
+                    {formatDate(receipt.periodStart)} -{' '}
+                    {formatDate(receipt.periodEnd)}
                   </td>
                   <td>${parseFloat(String(receipt.pricePerM3)).toFixed(2)}</td>
-                  <td>{new Date(receipt.paymentDeadline).toLocaleDateString()}</td>
+                  <td>{formatDate(receipt.paymentDeadline)}</td>
                   <td className="actions">
                     <button
                       onClick={() => handleEdit(receipt)}

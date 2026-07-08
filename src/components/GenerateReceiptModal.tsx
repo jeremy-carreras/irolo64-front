@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Loader2, FileText, Eye } from 'lucide-react';
 import { Department, WaterReading } from '../types';
 import { generateReceiptPDF, calculateReceipt } from '../utils/pdfGenerator';
+import { formatDate } from '../utils/dateFormatter';
 import client from '../api/client';
 
 interface Receipt {
@@ -318,7 +319,7 @@ export function GenerateReceiptModal({
                 <option value="">Elige un recibo general</option>
                 {receipts.map((receipt) => (
                   <option key={receipt.id} value={receipt.id}>
-                    {new Date(receipt.periodStart).toLocaleDateString()} - {new Date(receipt.periodEnd).toLocaleDateString()} | Cargo: ${parseFloat(String(receipt.totalCharge)).toFixed(2)}
+                    {formatDate(receipt.periodStart)} - {formatDate(receipt.periodEnd)} | Cargo: ${parseFloat(String(receipt.totalCharge)).toFixed(2)}
                   </option>
                 ))}
               </select>
