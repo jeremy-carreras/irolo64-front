@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
 import { waterReadingsAPI, departmentsAPI } from '../api/client';
 import { Department, WaterReading } from '../types';
@@ -209,8 +209,8 @@ export default function WaterReadingsHistory({ onLogout }: HistoryProps) {
                 />
                 <YAxis label={{ value: 'Lectura (m³)', angle: -90, position: 'insideLeft' }} />
                 <Tooltip
-                  formatter={(value: number | null) => value ? value.toFixed(2) : '-'}
-                  labelFormatter={(label: string) => `Fecha: ${label}`}
+                  formatter={(value: any) => value ? Number(value).toFixed(2) : '-'}
+                  labelFormatter={(label: any) => `Fecha: ${label}`}
                 />
                 <Legend />
                 {history.map((item, idx) => {
