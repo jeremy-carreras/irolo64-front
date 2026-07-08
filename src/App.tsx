@@ -7,26 +7,23 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
-      setToken(savedToken);
       setIsAuthenticated(true);
     }
     setIsLoading(false);
   }, []);
 
   const handleLoginSuccess = (token: string) => {
-    setToken(token);
+    localStorage.setItem('token', token);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    setToken(null);
     setIsAuthenticated(false);
   };
 

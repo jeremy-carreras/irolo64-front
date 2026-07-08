@@ -21,7 +21,6 @@ export interface ReceiptCalculation {
 }
 
 export function calculateReceipt(
-  department: Department,
   readings: WaterReading[],
   startDate: string,
   endDate: string,
@@ -133,13 +132,7 @@ export function calculateReceipt(
 
 export async function generateReceiptPDF(data: ReceiptData) {
   const { department, readings, startDate, endDate, pricePerM3 } = data;
-  const receipt = calculateReceipt(department, readings, startDate, endDate, pricePerM3);
-
-  // Parsear fechas para el PDF (como fecha local, no UTC)
-  const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
-  const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
-  const start = new Date(startYear, startMonth - 1, startDay);
-  const end = new Date(endYear, endMonth - 1, endDay);
+  const receipt = calculateReceipt(readings, startDate, endDate, pricePerM3);
 
   // Crear PDF
   const doc = new jsPDF();
@@ -216,19 +209,19 @@ export async function generateReceiptPDF(data: ReceiptData) {
   yPos += 4;
   doc.setFontSize(10);
   doc.setTextColor(31, 41, 55);
-  doc.setFont(undefined, 'bold');
+  (doc as any).setFont(undefined, 'bold');
   doc.text('Consumo Total', 25, yPos);
   doc.text(receipt.consumption.toFixed(2), 140, yPos);
-  doc.setFont(undefined, 'normal');
+  (doc as any).setFont(undefined, 'normal');
 
   // Estimación
   if (receipt.hasEstimation) {
     yPos += 8;
     doc.setFontSize(8);
     doc.setTextColor(220, 38, 38); // red-600
-    doc.setFont(undefined, 'bold');
+    (doc as any).setFont(undefined, 'bold');
     doc.text('⚠ Consumo estimado (lecturas no exactas)', 20, yPos);
-    doc.setFont(undefined, 'normal');
+    (doc as any).setFont(undefined, 'normal');
   }
 
   // Cálculo de precio
@@ -263,10 +256,10 @@ export async function generateReceiptPDF(data: ReceiptData) {
   yPos += 4;
   doc.setFontSize(12);
   doc.setTextColor(31, 41, 55);
-  doc.setFont(undefined, 'bold');
+  (doc as any).setFont(undefined, 'bold');
   doc.text('TOTAL A PAGAR', 25, yPos);
   doc.text(`$${receipt.totalPrice.toFixed(2)}`, 140, yPos);
-  doc.setFont(undefined, 'normal');
+  (doc as any).setFont(undefined, 'normal');
 
   // Pie de página
   yPos = 260;
