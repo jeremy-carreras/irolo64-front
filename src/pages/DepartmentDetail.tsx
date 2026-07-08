@@ -186,9 +186,9 @@ export function DepartmentDetailPage({
 
         {/* Water Readings */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+          <div className="flex flex-col gap-4 p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
             <h2 className="text-xl font-bold text-gray-900">Lecturas de Agua</h2>
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               <button
                 onClick={() => handleOpenModal()}
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold px-4 py-2.5 rounded-lg transition-all shadow-md hover:shadow-lg justify-center"
@@ -310,17 +310,17 @@ export function DepartmentDetailPage({
                         {reading.notes}
                       </p>
                     )}
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2">
                       <button
                         onClick={() => handleOpenModal(reading)}
-                        className="flex-1 text-sm text-yellow-600 hover:bg-yellow-50 py-2 rounded transition-colors font-medium"
+                        className="text-sm text-yellow-600 hover:bg-yellow-50 py-2.5 px-3 rounded transition-colors font-medium border border-yellow-200 hover:border-yellow-400"
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => handleDeleteClick(reading.id)}
                         disabled={deleting === reading.id}
-                        className="flex-1 text-sm text-red-600 hover:bg-red-50 py-2 rounded transition-colors font-medium disabled:opacity-50"
+                        className="text-sm text-red-600 hover:bg-red-50 py-2.5 px-3 rounded transition-colors font-medium disabled:opacity-50 border border-red-200 hover:border-red-400"
                       >
                         Eliminar
                       </button>
