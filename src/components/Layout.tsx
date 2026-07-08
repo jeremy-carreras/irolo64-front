@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Building2, FileText, LogOut } from 'lucide-react';
+import { Menu, X, Building2, FileText, LogOut, Droplet } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -75,6 +75,18 @@ export function Layout({ children, onLogout }: LayoutProps) {
             >
               <FileText size={18} />
               <span className="font-medium">Recibos</span>
+            </Link>
+            <Link
+              to="/water-readings/bulk"
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 transition-colors ${
+                location.pathname === '/water-readings/bulk'
+                  ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <Droplet size={18} />
+              <span className="font-medium">Ingresar Medición</span>
             </Link>
           </nav>
 

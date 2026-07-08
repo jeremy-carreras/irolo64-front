@@ -300,7 +300,7 @@ export function DepartmentDetailPage({
                         <p className="text-2xl font-bold text-yellow-600">
                           {reading.consumption !== undefined
                             ? parseFloat(String(reading.consumption)).toFixed(2)
-                            : '0.00'}
+                            : '0.00'} m³
                         </p>
                         <p className="text-xs text-gray-600">consumo</p>
                       </div>
