@@ -19,7 +19,7 @@ interface GenerateReceiptModalProps {
   onClose: () => void;
 }
 
-const API_TARGET = import.meta.env.VITE_API_TARGET || 'http://localhost:3001';
+const API_TARGET = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export function GenerateReceiptModal({
   isOpen,
