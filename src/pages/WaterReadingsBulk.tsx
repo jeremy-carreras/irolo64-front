@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
-import client from '../api/client';
+import { waterReadingsAPI, departmentsAPI } from '../api/client';
 import { Department, WaterReading } from '../types';
 
 interface DepartmentWithReading extends Department {
@@ -33,9 +33,20 @@ export default function WaterReadingsBulk({ onLogout }: WaterReadingsBulkProps) 
   const loadDepartments = async () => {
     try {
       setLoading(true);
-      const response = await client.get('/departments');
+      const response = await departmentsAPI.getAll();
       const depts = response.data as Department[];
-      setDepartments(depts.map(d => ({ ...d, meterReading: '' })));
+
+      const sorted = [...depts].sort((a, b) => {
+        const aIsGH = a.code.startsWith('GH');
+        const bIsGH = b.code.startsWith('GH');
+
+        if (aIsGH && !bIsGH) return -1;
+        if (!aIsGH && bIsGH) return 1;
+
+        return a.code.localeCompare(b.code);
+      });
+
+      setDepartments(sorted.map(d => ({ ...d, meterReading: '' })));
     } catch (err) {
       console.error('Error loading departments:', err);
       setError('Error al cargar departamentos');
@@ -51,25 +62,18 @@ export default function WaterReadingsBulk({ onLogout }: WaterReadingsBulkProps) 
       setLoading(true);
       setError('');
 
-      const updatedDepts = await Promise.all(
-        departments.map(async (dept) => {
-          try {
-            const response = await client.get(`/departments/${dept.id}/water-readings`);
-            const readings = response.data as WaterReading[];
-            const reading = readings.find(
-              r => r.readingDate.split('T')[0] === readingDate
-            );
+      const response = await waterReadingsAPI.getByDate(readingDate);
+      const readings = response.data as (WaterReading & { department: Department })[];
 
-            return {
-              ...dept,
-              reading,
-              meterReading: reading?.meterReading.toString() || ''
-            };
-          } catch {
-            return { ...dept, meterReading: '' };
-          }
-        })
+      const readingsByDeptId = new Map(
+        readings.map(r => [r.department?.id || r.departmentId, r])
       );
+
+      const updatedDepts = departments.map(dept => ({
+        ...dept,
+        reading: readingsByDeptId.get(dept.id),
+        meterReading: readingsByDeptId.get(dept.id)?.meterReading.toString() || dept.meterReading
+      }));
 
       setDepartments(updatedDepts);
     } catch (err) {
@@ -94,27 +98,35 @@ export default function WaterReadingsBulk({ onLogout }: WaterReadingsBulkProps) 
 
     try {
       setError('');
-      const meterReading = parseFloat(dept.meterReading);
+      setLoading(true);
 
+      const payload = {
+        meterReading: dept.meterReading,
+        readingDate: readingDate,
+        notes: ''
+      };
+
+      let savedReading;
       if (dept.reading) {
-        await client.patch(`/water-readings/${dept.reading.id}`, {
-          meterReading,
-          readingDate,
-          notes: ''
-        });
+        await waterReadingsAPI.update(dept.reading.id, payload);
+        savedReading = { ...dept.reading, ...payload };
       } else {
-        await client.post(`/departments/${dept.id}/water-readings`, {
-          meterReading,
-          readingDate,
-          notes: ''
-        });
+        const response = await waterReadingsAPI.create(dept.id, payload);
+        savedReading = response.data;
       }
 
       setSuccess(`Lectura guardada para ${dept.code}`);
-      loadReadingsForDate();
+
+      setDepartments(departments.map(d =>
+        d.id === dept.id
+          ? { ...d, reading: savedReading, meterReading: dept.meterReading }
+          : d
+      ));
     } catch (err) {
       console.error('Error saving reading:', err);
       setError('Error al guardar lectura');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,14 +135,38 @@ export default function WaterReadingsBulk({ onLogout }: WaterReadingsBulkProps) 
       setLoading(true);
       setError('');
 
-      await Promise.all(
-        departments
-          .filter(d => d.meterReading)
-          .map(d => handleSaveReading(d))
-      );
+      const deptWithReadings = departments.filter(d => d.meterReading);
+      const updatedDepts: DepartmentWithReading[] = [];
+
+      for (const dept of deptWithReadings) {
+        const payload = {
+          meterReading: dept.meterReading,
+          readingDate: readingDate,
+          notes: ''
+        };
+
+        let savedReading;
+        if (dept.reading) {
+          await waterReadingsAPI.update(dept.reading.id, payload);
+          savedReading = { ...dept.reading, ...payload };
+        } else {
+          const response = await waterReadingsAPI.create(dept.id, payload);
+          savedReading = response.data;
+        }
+
+        updatedDepts.push({
+          ...dept,
+          reading: savedReading,
+          meterReading: dept.meterReading
+        });
+      }
+
+      setDepartments(departments.map(d => {
+        const updated = updatedDepts.find(u => u.id === d.id);
+        return updated || d;
+      }));
 
       setSuccess('Todas las lecturas guardadas');
-      loadReadingsForDate();
     } catch (err) {
       console.error('Error saving all readings:', err);
       setError('Error al guardar las lecturas');
