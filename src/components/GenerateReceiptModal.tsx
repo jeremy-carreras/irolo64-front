@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { X, Loader2, FileText, Eye } from 'lucide-react';
 import { Department, WaterReading } from '../types';
 import { generateReceiptPDF, calculateReceipt } from '../utils/pdfGenerator';
@@ -21,7 +20,6 @@ interface GenerateReceiptModalProps {
 }
 
 const API_TARGET = import.meta.env.VITE_API_TARGET || 'http://localhost:3001';
-const client = axios.create({ baseURL: API_TARGET });
 
 export function GenerateReceiptModal({
   isOpen,
