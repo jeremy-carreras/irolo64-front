@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Loader2, FileText, Eye } from 'lucide-react';
 import { Department, WaterReading } from '../types';
 import { generateReceiptPDF, calculateReceipt } from '../utils/pdfGenerator';
+import client from '../api/client';
 
 interface Receipt {
   id: string;
@@ -18,8 +19,6 @@ interface GenerateReceiptModalProps {
   readings: WaterReading[];
   onClose: () => void;
 }
-
-const API_TARGET = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export function GenerateReceiptModal({
   isOpen,
@@ -46,15 +45,8 @@ export function GenerateReceiptModal({
 
   const loadReceipts = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_TARGET}/receipts`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error('Error loading receipts');
-      const data = await response.json();
-      setReceipts(data);
+      const response = await client.get('/receipts');
+      setReceipts(response.data);
     } catch (err) {
       console.error('Error loading receipts:', err);
       setError('Error al cargar recibos');

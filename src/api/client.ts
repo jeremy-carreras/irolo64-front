@@ -55,4 +55,13 @@ export const waterReadingsAPI = {
   delete: (id: string) => client.delete(`/water-readings/${id}`),
 };
 
+export const receiptsAPI = {
+  getAll: () => client.get('/receipts'),
+  getById: (id: string) => client.get(`/receipts/${id}`),
+  create: (data: any) => client.post('/receipts', data),
+  update: (id: string, data: any) =>
+    client.patch(`/receipts/${id}`, data),
+  delete: (id: string) => client.delete(`/receipts/${id}`),
+};
+
 export default client;
