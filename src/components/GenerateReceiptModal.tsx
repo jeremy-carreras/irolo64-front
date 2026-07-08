@@ -29,10 +29,6 @@ export function GenerateReceiptModal({
 }: GenerateReceiptModalProps) {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
-  const [useManual, setUseManual] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [pricePerM3, setPricePerM3] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
@@ -56,49 +52,26 @@ export function GenerateReceiptModal({
 
   if (!isOpen || !department) return null;
 
-  const validateForm = () => {
-    if (!startDate || !endDate || !pricePerM3) {
-      setError('Por favor completa todos los campos');
-      return false;
-    }
-
-    if (new Date(startDate) >= new Date(endDate)) {
-      setError('La fecha de inicio debe ser anterior a la fecha de fin');
-      return false;
-    }
-
-    if (parseFloat(pricePerM3) <= 0) {
-      setError('El precio por m3 debe ser mayor a 0');
-      return false;
-    }
-
-    return true;
-  };
-
   const handlePreview = () => {
     setError('');
 
-    let start, end, price;
-
-    if (selectedReceipt && !useManual) {
-      start = new Date(selectedReceipt.periodStart).toISOString().split('T')[0];
-      end = new Date(selectedReceipt.periodEnd).toISOString().split('T')[0];
-      price = parseFloat(String(selectedReceipt.pricePerM3));
-    } else {
-      if (!validateForm()) return;
-      start = startDate;
-      end = endDate;
-      price = parseFloat(pricePerM3);
+    if (!selectedReceipt) {
+      setError('Por favor selecciona un recibo');
+      return;
     }
 
     try {
+      const start = selectedReceipt.periodStart.split('T')[0];
+      const end = selectedReceipt.periodEnd.split('T')[0];
+      const price = parseFloat(String(selectedReceipt.pricePerM3));
+
       const receipt = calculateReceipt(readings, start, end, price);
       setPreviewData({
         startDate: start,
         endDate: end,
         pricePerM3: price,
         receipt,
-        selectedReceiptId: selectedReceipt?.id,
+        selectedReceiptId: selectedReceipt.id,
       });
       setShowPreview(true);
     } catch (err) {
@@ -113,9 +86,9 @@ export function GenerateReceiptModal({
       await generateReceiptPDF({
         department,
         readings,
-        startDate,
-        endDate,
-        pricePerM3: parseFloat(pricePerM3),
+        startDate: previewData.startDate,
+        endDate: previewData.endDate,
+        pricePerM3: previewData.pricePerM3,
       });
       setShowPreview(false);
       onClose();
@@ -302,96 +275,27 @@ export function GenerateReceiptModal({
           </div>
 
           {/* Recibos Disponibles */}
-          {receipts.length > 0 && !useManual && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Selecciona un Recibo General
-              </label>
-              <select
-                value={selectedReceipt?.id || ''}
-                onChange={(e) => {
-                  const receipt = receipts.find(r => r.id === e.target.value);
-                  setSelectedReceipt(receipt || null);
-                }}
-                disabled={loading}
-                className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
-              >
-                <option value="">Elige un recibo general</option>
-                {receipts.map((receipt) => (
-                  <option key={receipt.id} value={receipt.id}>
-                    {formatDate(receipt.periodStart)} - {formatDate(receipt.periodEnd)} | Cargo: ${parseFloat(String(receipt.totalCharge)).toFixed(2)}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={() => setUseManual(true)}
-                className="text-xs text-blue-600 mt-2 hover:underline"
-              >
-                O ingresar datos manualmente
-              </button>
-            </div>
-          )}
-
-          {/* Manual Entry */}
-          {(useManual || receipts.length === 0) && (
-            <>
-              {receipts.length > 0 && (
-                <button
-                  onClick={() => setUseManual(false)}
-                  className="text-xs text-blue-600 hover:underline"
-                >
-                  ← Usar recibo existente
-                </button>
-              )}
-
-              {/* Fecha Inicio */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Fecha Inicio del Período
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  disabled={loading}
-                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
-                />
-              </div>
-
-              {/* Fecha Fin */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Fecha Fin del Período
-                </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  disabled={loading}
-                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
-                />
-              </div>
-
-              {/* Precio por m3 */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Precio por m³
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">$</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={pricePerM3}
-                    onChange={(e) => setPricePerM3(e.target.value)}
-                    disabled={loading}
-                    placeholder="0.00"
-                    className="w-full border-2 border-gray-200 rounded-lg px-4 pl-8 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
-                  />
-                </div>
-              </div>
-            </>
-          )}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Selecciona un Recibo General
+            </label>
+            <select
+              value={selectedReceipt?.id || ''}
+              onChange={(e) => {
+                const receipt = receipts.find(r => r.id === e.target.value);
+                setSelectedReceipt(receipt || null);
+              }}
+              disabled={loading}
+              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
+            >
+              <option value="">Elige un recibo general</option>
+              {receipts.map((receipt) => (
+                <option key={receipt.id} value={receipt.id}>
+                  {formatDate(receipt.periodStart)} - {formatDate(receipt.periodEnd)} | Cargo: ${parseFloat(String(receipt.totalCharge)).toFixed(2)}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Error */}
           {error && (
