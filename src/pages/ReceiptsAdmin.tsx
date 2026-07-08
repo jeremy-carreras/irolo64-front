@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import '../styles/ReceiptsAdmin.css';
 
@@ -19,7 +18,6 @@ interface ReceiptsAdminProps {
 const API_TARGET = import.meta.env.VITE_API_TARGET || 'http://localhost:3001';
 
 export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
-  const navigate = useNavigate();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [form, setForm] = useState({
     totalCharge: '',
