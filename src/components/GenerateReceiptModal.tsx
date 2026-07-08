@@ -52,7 +52,6 @@ export function GenerateReceiptModal({
 
     try {
       const receipt = calculateReceipt(
-        department,
         readings,
         startDate,
         endDate,
