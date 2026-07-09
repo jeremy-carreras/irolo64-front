@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Loader2, FileText, Eye } from 'lucide-react';
 import { Department, WaterReading } from '../types';
 import { generateReceiptPDF, calculateReceipt } from '../utils/pdfGenerator';
-import { formatDate } from '../utils/dateFormatter';
+import { formatDate, formatCurrency, formatNumber } from '../utils/dateFormatter';
 import client from '../api/client';
 
 interface Receipt {
@@ -33,6 +33,7 @@ export function GenerateReceiptModal({
   const [error, setError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
+  const [consumedM3, setConsumedM3] = useState<string>('');
 
   useEffect(() => {
     if (isOpen && department) {
@@ -60,16 +61,25 @@ export function GenerateReceiptModal({
       return;
     }
 
+    if (!consumedM3 || parseFloat(consumedM3) <= 0) {
+      setError('Por favor ingresa el total de m³ consumidos');
+      return;
+    }
+
     try {
       const start = selectedReceipt.periodStart.split('T')[0];
       const end = selectedReceipt.periodEnd.split('T')[0];
-      const price = parseFloat(String(selectedReceipt.pricePerM3));
+      const totalCharge = parseFloat(String(selectedReceipt.totalCharge));
+      const m3 = parseFloat(consumedM3);
+      const calculatedPrice = totalCharge / m3;
 
-      const receipt = calculateReceipt(readings, start, end, price);
+      const receipt = calculateReceipt(readings, start, end, calculatedPrice);
       setPreviewData({
         startDate: start,
         endDate: end,
-        pricePerM3: price,
+        pricePerM3: calculatedPrice,
+        totalCharge,
+        consumedM3: m3,
         receipt,
         selectedReceiptId: selectedReceipt.id,
       });
@@ -91,6 +101,7 @@ export function GenerateReceiptModal({
         pricePerM3: previewData.pricePerM3,
       });
       setShowPreview(false);
+      setConsumedM3('');
       onClose();
     } catch (err) {
       setError('Error al generar el recibo');
@@ -156,19 +167,19 @@ export function GenerateReceiptModal({
                 <div className="flex justify-between">
                   <span className="text-gray-700">Lectura Inicial:</span>
                   <span className="font-semibold text-gray-900">
-                    {previewData.receipt.initialReading.toFixed(2)} m³
+                    {formatNumber(previewData.receipt.initialReading)} m³
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-700">Lectura Final:</span>
                   <span className="font-semibold text-gray-900">
-                    {previewData.receipt.finalReading.toFixed(2)} m³
+                    {formatNumber(previewData.receipt.finalReading)} m³
                   </span>
                 </div>
                 <div className="border-t border-gray-200 pt-2 flex justify-between">
                   <span className="font-semibold text-gray-900">Consumo Total:</span>
                   <span className="font-bold text-lg text-yellow-600">
-                    {previewData.receipt.consumption.toFixed(2)} m³
+                    {formatNumber(previewData.receipt.consumption)} m³
                   </span>
                 </div>
               </div>
@@ -185,24 +196,36 @@ export function GenerateReceiptModal({
             <div>
               <p className="font-semibold text-gray-900 mb-2">Cálculo de Tarifa</p>
               <div className="space-y-2 bg-gray-50 p-3 rounded">
-                <div className="flex justify-between">
-                  <span className="text-gray-700">Precio por m³:</span>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">Cargo Total del Recibo:</span>
                   <span className="font-semibold text-gray-900">
-                    ${parseFloat(String(previewData.pricePerM3)).toFixed(2)}
+                    {formatCurrency(previewData.totalCharge)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">m³ Consumidos (ingresado):</span>
+                  <span className="font-semibold text-gray-900">
+                    {formatNumber(previewData.consumedM3)} m³
+                  </span>
+                </div>
+                <div className="border-t border-gray-200 pt-2 flex justify-between">
+                  <span className="text-gray-700">Precio por m³ (calculado):</span>
+                  <span className="font-semibold text-gray-900">
+                    {formatCurrency(previewData.pricePerM3)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-700">
-                    Consumo {previewData.receipt.consumption.toFixed(2)} m³:
+                    Consumo {formatNumber(previewData.receipt.consumption)} m³:
                   </span>
                   <span className="font-semibold text-gray-900">
-                    ${previewData.receipt.totalPrice.toFixed(2)}
+                    {formatCurrency(previewData.receipt.totalPrice)}
                   </span>
                 </div>
                 <div className="border-t border-gray-200 pt-2 flex justify-between">
                   <span className="font-bold text-gray-900">TOTAL A PAGAR:</span>
                   <span className="font-bold text-lg text-blue-600">
-                    ${previewData.receipt.totalPrice.toFixed(2)}
+                    {formatCurrency(previewData.receipt.totalPrice)}
                   </span>
                 </div>
               </div>
@@ -212,7 +235,10 @@ export function GenerateReceiptModal({
           {/* Preview Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:justify-end p-6 border-t border-gray-200 bg-gray-50">
             <button
-              onClick={() => setShowPreview(false)}
+              onClick={() => {
+                setShowPreview(false);
+                setConsumedM3('');
+              }}
               disabled={loading}
               className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 order-2 sm:order-1"
             >
@@ -291,10 +317,27 @@ export function GenerateReceiptModal({
               <option value="">Elige un recibo general</option>
               {receipts.map((receipt) => (
                 <option key={receipt.id} value={receipt.id}>
-                  {formatDate(receipt.periodStart)} - {formatDate(receipt.periodEnd)} | Cargo: ${parseFloat(String(receipt.totalCharge)).toFixed(2)}
+                  {formatDate(receipt.periodStart)} - {formatDate(receipt.periodEnd)} | Cargo: {formatCurrency(receipt.totalCharge)}
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Total m³ Consumidos */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Total de m³ Consumidos
+            </label>
+            <input
+              type="number"
+              value={consumedM3}
+              onChange={(e) => setConsumedM3(e.target.value)}
+              disabled={loading}
+              placeholder="Ingresa el total de m³"
+              step="0.01"
+              min="0"
+              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
+            />
           </div>
 
           {/* Error */}

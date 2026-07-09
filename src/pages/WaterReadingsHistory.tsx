@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
 import { waterReadingsAPI, departmentsAPI } from '../api/client';
 import { Department, WaterReading } from '../types';
+import { formatNumber } from '../utils/dateFormatter';
 import {
   LineChart,
   Line,
@@ -193,7 +194,7 @@ export default function WaterReadingsHistory({ onLogout }: HistoryProps) {
                 </tr>
               </thead>
               <tbody>
-                {filteredHistory.map((item, idx) => (
+                {history.map((item, idx) => (
                   <tr
                     key={item.department.id}
                     className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-yellow-50 transition-colors`}
@@ -287,7 +288,7 @@ export default function WaterReadingsHistory({ onLogout }: HistoryProps) {
                 />
                 <YAxis label={{ value: 'Lectura (m³)', angle: -90, position: 'insideLeft' }} tick={{ fontSize: 12 }} />
                 <Tooltip
-                  formatter={(value: any) => value ? Number(value).toFixed(2) : '-'}
+                  formatter={(value: any) => value ? formatNumber(Number(value)) : '-'}
                   labelFormatter={(label: any) => `Fecha: ${label}`}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />

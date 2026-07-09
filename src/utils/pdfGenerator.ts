@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import { Department, WaterReading } from '../types';
-import { formatDate } from './dateFormatter';
+import { formatDate, formatNumber, formatCurrency } from './dateFormatter';
 
 export interface ReceiptData {
   department: Department;
@@ -196,11 +196,11 @@ export async function generateReceiptPDF(data: ReceiptData) {
   yPos += 7;
   doc.setTextColor(31, 41, 55);
   doc.text('Lectura Inicial', 25, yPos);
-  doc.text(receipt.initialReading.toFixed(2), 140, yPos);
+  doc.text(formatNumber(receipt.initialReading), 140, yPos);
 
   yPos += 6;
   doc.text('Lectura Final', 25, yPos);
-  doc.text(receipt.finalReading.toFixed(2), 140, yPos);
+  doc.text(formatNumber(receipt.finalReading), 140, yPos);
 
   yPos += 6;
   doc.setTextColor(75, 85, 99);
@@ -211,7 +211,7 @@ export async function generateReceiptPDF(data: ReceiptData) {
   doc.setTextColor(31, 41, 55);
   (doc as any).setFont(undefined, 'bold');
   doc.text('Consumo Total', 25, yPos);
-  doc.text(receipt.consumption.toFixed(2), 140, yPos);
+  doc.text(formatNumber(receipt.consumption), 140, yPos);
   (doc as any).setFont(undefined, 'normal');
 
   // Estimación
@@ -242,11 +242,11 @@ export async function generateReceiptPDF(data: ReceiptData) {
   yPos += 7;
   doc.setTextColor(31, 41, 55);
   doc.text(`Precio por m³`, 25, yPos);
-  doc.text(`$${pricePerM3.toFixed(2)}`, 140, yPos);
+  doc.text(formatCurrency(pricePerM3), 140, yPos);
 
   yPos += 6;
-  doc.text(`Consumo ${receipt.consumption.toFixed(2)} m³`, 25, yPos);
-  doc.text(`$${receipt.totalPrice.toFixed(2)}`, 140, yPos);
+  doc.text(`Consumo ${formatNumber(receipt.consumption)} m³`, 25, yPos);
+  doc.text(formatCurrency(receipt.totalPrice), 140, yPos);
 
   // Total
   yPos += 8;
@@ -258,7 +258,7 @@ export async function generateReceiptPDF(data: ReceiptData) {
   doc.setTextColor(31, 41, 55);
   (doc as any).setFont(undefined, 'bold');
   doc.text('TOTAL A PAGAR', 25, yPos);
-  doc.text(`$${receipt.totalPrice.toFixed(2)}`, 140, yPos);
+  doc.text(formatCurrency(receipt.totalPrice), 140, yPos);
   (doc as any).setFont(undefined, 'normal');
 
   // Pie de página
