@@ -15,3 +15,18 @@ export function formatDate(date: Date | string): string {
 export function formatDateFromISO(isoString: string): string {
   return formatDate(isoString);
 }
+
+export function formatNumber(value: number | string, decimals: number = 2): string {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+
+  if (isNaN(num)) return '0';
+
+  const parts = num.toFixed(decimals).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  return decimals > 0 ? parts.join('.') : parts[0];
+}
+
+export function formatCurrency(value: number | string, decimals: number = 2): string {
+  return `$${formatNumber(value, decimals)}`;
+}

@@ -8,7 +8,7 @@ import { PageLoader } from '../components/LoadingSkeletons';
 import { departmentsAPI, waterReadingsAPI } from '../api/client';
 import { Department, WaterReading } from '../types';
 import { ChevronLeft, Plus, Edit2, Trash2, Droplet, FileText } from 'lucide-react';
-import { formatDateFromISO } from '../utils/dateFormatter';
+import { formatDateFromISO, formatNumber } from '../utils/dateFormatter';
 
 interface DepartmentDetailPageProps {
   onLogout: () => void;
@@ -95,7 +95,7 @@ export function DepartmentDetailPage({
   };
 
   const totalConsumption =
-    readings.reduce((sum, r) => sum + (r.consumption || 0), 0).toFixed(2);
+    formatNumber(readings.reduce((sum, r) => sum + (r.consumption || 0), 0));
   const lastReading = readings[readings.length - 1];
 
   if (loading) {
@@ -167,7 +167,7 @@ export function DepartmentDetailPage({
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <p className="text-gray-600 text-sm font-medium mb-2">Última Lectura</p>
               <p className="text-2xl font-bold text-gray-900">
-                {parseFloat(String(lastReading.meterReading)).toFixed(2)} m³
+                {formatNumber(lastReading.meterReading)} m³
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 {formatDateFromISO(lastReading.readingDate)}
@@ -247,11 +247,11 @@ export function DepartmentDetailPage({
                           {formatDateFromISO(reading.readingDate)}
                         </td>
                         <td className="px-6 py-4 font-bold text-yellow-600 text-lg">
-                          {parseFloat(String(reading.meterReading)).toFixed(2)}
+                          {formatNumber(reading.meterReading)}
                         </td>
                         <td className="px-6 py-4 text-gray-800 font-semibold">
                           {reading.consumption !== undefined
-                            ? parseFloat(String(reading.consumption)).toFixed(2)
+                            ? formatNumber(reading.consumption)
                             : '0.00'}
                         </td>
                         <td className="px-6 py-4 text-gray-600 text-sm">
@@ -290,7 +290,7 @@ export function DepartmentDetailPage({
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <p className="font-bold text-gray-900 text-lg">
-                          {parseFloat(String(reading.meterReading)).toFixed(2)} m³
+                          {formatNumber(reading.meterReading)} m³
                         </p>
                         <p className="text-xs text-gray-600">
                           {formatDateFromISO(reading.readingDate)}
@@ -299,7 +299,7 @@ export function DepartmentDetailPage({
                       <div className="text-right">
                         <p className="text-2xl font-bold text-yellow-600">
                           {reading.consumption !== undefined
-                            ? parseFloat(String(reading.consumption)).toFixed(2)
+                            ? formatNumber(reading.consumption)
                             : '0.00'} m³
                         </p>
                         <p className="text-xs text-gray-600">consumo</p>
