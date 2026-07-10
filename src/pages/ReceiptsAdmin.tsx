@@ -3,16 +3,17 @@ import { Layout } from '../components/Layout';
 import '../styles/ReceiptsAdmin.css';
 import client from '../api/client';
 import { Plus, ChevronDown, Edit2, Trash2, Eye, X, Zap } from 'lucide-react';
-import { formatCurrency } from '../utils/dateFormatter';
+import { formatCurrency, formatNumber } from '../utils/dateFormatter';
 import { estimateConsumptionAdvanced } from '../utils/consumptionEstimator';
 import { waterReadingsAPI } from '../api/client';
 
 interface Receipt {
   id: string;
   totalCharge: number;
+  consumedM3: number;
+  pricePerM3: number;
   periodStart: string;
   periodEnd: string;
-  pricePerM3: number;
   paymentDeadline: string;
   pdfUrl?: string;
 }
@@ -123,6 +124,7 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
 
       const body = {
         totalCharge,
+        consumedM3,
         pricePerM3,
         periodStart: form.periodStart,
         periodEnd: form.periodEnd,
@@ -366,6 +368,7 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
                 <thead>
                   <tr>
                     <th>Cargo Total</th>
+                    <th>m³ Consumidos</th>
                     <th>Período Inicio</th>
                     <th>Período Fin</th>
                     <th>Precio/m³</th>
@@ -377,6 +380,7 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
                   {[...receipts].sort((a, b) => new Date(b.periodEnd).getTime() - new Date(a.periodEnd).getTime()).map((receipt) => (
                     <tr key={receipt.id}>
                       <td>{formatCurrency(receipt.totalCharge)}</td>
+                      <td>{formatNumber(receipt.consumedM3)}</td>
                       <td>{formatDate(receipt.periodStart)}</td>
                       <td>{formatDate(receipt.periodEnd)}</td>
                       <td>{formatCurrency(receipt.pricePerM3)}</td>
@@ -431,6 +435,10 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
                     <div className="card-row">
                       <span className="card-label">Precio/m³:</span>
                       <span className="card-value">{formatCurrency(receipt.pricePerM3)}</span>
+                    </div>
+                    <div className="card-row">
+                      <span className="card-label">m³ Consumidos:</span>
+                      <span className="card-value">{formatNumber(receipt.consumedM3)}</span>
                     </div>
                     <div className="card-row">
                       <span className="card-label">Vencimiento:</span>
