@@ -8,6 +8,7 @@ import client from '../api/client';
 interface Receipt {
   id: string;
   totalCharge: number;
+  consumedM3: number;
   periodStart: string;
   periodEnd: string;
   pricePerM3: number;
@@ -33,7 +34,6 @@ export function GenerateReceiptModal({
   const [error, setError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
-  const [consumedM3, setConsumedM3] = useState<string>('');
 
   useEffect(() => {
     if (isOpen && department) {
@@ -61,25 +61,18 @@ export function GenerateReceiptModal({
       return;
     }
 
-    if (!consumedM3 || parseFloat(consumedM3) <= 0) {
-      setError('Por favor ingresa el total de m³ consumidos');
-      return;
-    }
-
     try {
       const start = selectedReceipt.periodStart.split('T')[0];
       const end = selectedReceipt.periodEnd.split('T')[0];
-      const totalCharge = parseFloat(String(selectedReceipt.totalCharge));
-      const m3 = parseFloat(consumedM3);
-      const calculatedPrice = totalCharge / m3;
+      const pricePerM3 = parseFloat(String(selectedReceipt.pricePerM3));
 
-      const receipt = calculateReceipt(readings, start, end, calculatedPrice);
+      const receipt = calculateReceipt(readings, start, end, pricePerM3);
       setPreviewData({
         startDate: start,
         endDate: end,
-        pricePerM3: calculatedPrice,
-        totalCharge,
-        consumedM3: m3,
+        pricePerM3,
+        totalCharge: selectedReceipt.totalCharge,
+        consumedM3: selectedReceipt.consumedM3,
         receipt,
         selectedReceiptId: selectedReceipt.id,
       });
@@ -101,7 +94,6 @@ export function GenerateReceiptModal({
         pricePerM3: previewData.pricePerM3,
       });
       setShowPreview(false);
-      setConsumedM3('');
       onClose();
     } catch (err) {
       setError('Error al generar el recibo');
@@ -235,10 +227,7 @@ export function GenerateReceiptModal({
           {/* Preview Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:justify-end p-6 border-t border-gray-200 bg-gray-50">
             <button
-              onClick={() => {
-                setShowPreview(false);
-                setConsumedM3('');
-              }}
+              onClick={() => setShowPreview(false)}
               disabled={loading}
               className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 order-2 sm:order-1"
             >
@@ -321,23 +310,6 @@ export function GenerateReceiptModal({
                 </option>
               ))}
             </select>
-          </div>
-
-          {/* Total m³ Consumidos */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Total de m³ Consumidos
-            </label>
-            <input
-              type="number"
-              value={consumedM3}
-              onChange={(e) => setConsumedM3(e.target.value)}
-              disabled={loading}
-              placeholder="Ingresa el total de m³"
-              step="0.01"
-              min="0"
-              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all disabled:bg-gray-100"
-            />
           </div>
 
           {/* Error */}
