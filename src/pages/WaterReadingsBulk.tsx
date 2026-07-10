@@ -10,9 +10,10 @@ interface DepartmentWithReading extends Department {
 
 interface WaterReadingsBulkProps {
   onLogout: () => void;
+  layout?: boolean;
 }
 
-export default function WaterReadingsBulk({ onLogout }: WaterReadingsBulkProps) {
+export default function WaterReadingsBulk({ onLogout, layout = true }: WaterReadingsBulkProps) {
   const [readingDate, setReadingDate] = useState(new Date().toISOString().split('T')[0]);
   const [departments, setDepartments] = useState<DepartmentWithReading[]>([]);
   const [loading, setLoading] = useState(false);
@@ -175,9 +176,8 @@ export default function WaterReadingsBulk({ onLogout }: WaterReadingsBulkProps) 
     }
   };
 
-  return (
-    <Layout onLogout={onLogout}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  const content = (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Ingresar Medición</h1>
 
         {/* Date Selector */}
@@ -275,6 +275,11 @@ export default function WaterReadingsBulk({ onLogout }: WaterReadingsBulkProps) 
           </div>
         )}
       </div>
-    </Layout>
+  );
+
+  return layout ? (
+    <Layout onLogout={onLogout}>{content}</Layout>
+  ) : (
+    content
   );
 }

@@ -16,6 +16,7 @@ import {
 
 interface HistoryProps {
   onLogout: () => void;
+  layout?: boolean;
 }
 
 interface DepartmentHistory {
@@ -25,7 +26,7 @@ interface DepartmentHistory {
 
 type ViewMode = 'table' | 'chart';
 
-export default function WaterReadingsHistory({ onLogout }: HistoryProps) {
+export default function WaterReadingsHistory({ onLogout, layout = true }: HistoryProps) {
   const [history, setHistory] = useState<DepartmentHistory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -116,12 +117,15 @@ export default function WaterReadingsHistory({ onLogout }: HistoryProps) {
   };
 
   if (loading) {
-    return (
-      <Layout onLogout={onLogout}>
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-xl text-gray-600">Cargando historial...</div>
-        </div>
-      </Layout>
+    const loadingContent = (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-xl text-gray-600">Cargando historial...</div>
+      </div>
+    );
+    return layout ? (
+      <Layout onLogout={onLogout}>{loadingContent}</Layout>
+    ) : (
+      loadingContent
     );
   }
 
@@ -136,9 +140,8 @@ export default function WaterReadingsHistory({ onLogout }: HistoryProps) {
     return dataPoint;
   });
 
-  return (
-    <Layout onLogout={onLogout}>
-      <div className="max-w-full mx-auto px-4 sm:px-6 py-6">
+  const content = (
+    <div className="max-w-full mx-auto px-4 sm:px-6 py-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Lectura de Agua</h1>
 
         {error && (
@@ -312,6 +315,11 @@ export default function WaterReadingsHistory({ onLogout }: HistoryProps) {
           </div>
         )}
       </div>
-    </Layout>
+  );
+
+  return layout ? (
+    <Layout onLogout={onLogout}>{content}</Layout>
+  ) : (
+    content
   );
 }
