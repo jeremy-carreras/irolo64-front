@@ -10,9 +10,10 @@ import { Plus, Edit2, Trash2, ChevronRight } from 'lucide-react';
 
 interface DepartmentsPageProps {
   onLogout: () => void;
+  layout?: boolean;
 }
 
-export function DepartmentsPage({ onLogout }: DepartmentsPageProps) {
+export function DepartmentsPage({ onLogout, layout = true }: DepartmentsPageProps) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,9 +102,9 @@ export function DepartmentsPage({ onLogout }: DepartmentsPageProps) {
     navigate(`/departments/${dept.id}`);
   };
 
-  return (
-    <Layout onLogout={onLogout}>
-      <div className="space-y-8">
+  const content = (
+    <>
+    <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -279,6 +280,12 @@ export function DepartmentsPage({ onLogout }: DepartmentsPageProps) {
         onCancel={() => setConfirmDelete({ isOpen: false, deptId: null })}
         isLoading={deleting !== null}
       />
-    </Layout>
+    </>
+  );
+
+  return layout ? (
+    <Layout onLogout={onLogout}>{content}</Layout>
+  ) : (
+    content
   );
 }

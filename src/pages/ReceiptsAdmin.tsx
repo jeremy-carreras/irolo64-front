@@ -20,6 +20,7 @@ interface Receipt {
 
 interface ReceiptsAdminProps {
   onLogout: () => void;
+  layout?: boolean;
 }
 
 const formatDate = (dateString: string) => {
@@ -27,7 +28,7 @@ const formatDate = (dateString: string) => {
   return `${day}/${month}/${year}`;
 };
 
-export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
+export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdminProps) {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [form, setForm] = useState({
     totalCharge: '',
@@ -205,9 +206,9 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
     }
   };
 
-  return (
-    <Layout onLogout={onLogout}>
-      <div className="receipts-admin">
+  const content = (
+    <>
+    <div className="receipts-admin">
         <h1>Cargar Recibo General</h1>
 
       <div className={`form-accordion ${showForm ? 'open' : ''}`}>
@@ -562,6 +563,12 @@ export default function ReceiptsAdmin({ onLogout }: ReceiptsAdminProps) {
           </div>
         </div>
       )}
-    </Layout>
+    </>
+  );
+
+  return layout ? (
+    <Layout onLogout={onLogout}>{content}</Layout>
+  ) : (
+    content
   );
 }

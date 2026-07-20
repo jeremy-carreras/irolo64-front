@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
-import { DepartmentsPage } from './pages/Departments';
 import { DepartmentDetailPage } from './pages/DepartmentDetail';
-import ReceiptsAdmin from './pages/ReceiptsAdmin';
-import WaterReadingsBulk from './pages/WaterReadingsBulk';
-import WaterReadingsHistory from './pages/WaterReadingsHistory';
+import { WaterPage } from './pages/Water';
+import { NovedadesPage } from './pages/Novedades';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -41,21 +39,22 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/novedades" element={<NovedadesPage />} />
         <Route
           path="/login"
           element={
             isAuthenticated ? (
-              <Navigate to="/departments" replace />
+              <Navigate to="/water" replace />
             ) : (
               <LoginPage onLoginSuccess={handleLoginSuccess} />
             )
           }
         />
         <Route
-          path="/departments"
+          path="/water"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <DepartmentsPage onLogout={handleLogout} />
+              <WaterPage onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
@@ -67,31 +66,11 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/receipts"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <ReceiptsAdmin onLogout={handleLogout} />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/water-readings/bulk"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <WaterReadingsBulk onLogout={handleLogout} />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/water-readings/history"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <WaterReadingsHistory onLogout={handleLogout} />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/" element={<Navigate to="/departments" replace />} />
+        <Route path="/departments" element={<Navigate to="/water" replace />} />
+        <Route path="/receipts" element={<Navigate to="/water" replace />} />
+        <Route path="/water-readings/bulk" element={<Navigate to="/water" replace />} />
+        <Route path="/water-readings/history" element={<Navigate to="/water" replace />} />
+        <Route path="/" element={<Navigate to="/novedades" replace />} />
       </Routes>
     </BrowserRouter>
   );

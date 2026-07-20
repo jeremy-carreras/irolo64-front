@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Building2, FileText, LogOut, Droplet } from 'lucide-react';
+import { Menu, X, LogOut, Droplet, Newspaper } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ export function Layout({ children, onLogout }: LayoutProps) {
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="flex items-center justify-between px-4 py-4">
           {/* Logo */}
-          <Link to="/departments" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link to="/water" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 rounded-lg overflow-hidden mt-1">
               <img src="/img/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
@@ -49,70 +49,49 @@ export function Layout({ children, onLogout }: LayoutProps) {
 
       {/* Menu Dropdown */}
       {isMenuOpen && (
-        <div className="fixed right-4 top-20 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-40">
+        <div className="fixed right-4 top-20 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-40">
           {/* Menu Items */}
-          <nav className="py-2">
+          <nav className="py-1">
+            {/* Novedades */}
             <Link
-              to="/departments"
+              to="/novedades"
               onClick={() => setIsMenuOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors ${
-                location.pathname === '/departments' || location.pathname.startsWith('/departments/')
-                  ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500'
+              className={`flex items-center gap-3 px-4 py-3.5 transition-all ${
+                location.pathname === '/novedades'
+                  ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-500'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <Building2 size={18} />
-              <span className="font-medium">Departamentos</span>
+              <Newspaper size={18} />
+              <span className="font-medium">Novedades</span>
             </Link>
+
+            {/* Agua */}
             <Link
-              to="/receipts"
+              to="/water"
               onClick={() => setIsMenuOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors ${
-                location.pathname === '/receipts'
-                  ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <FileText size={18} />
-              <span className="font-medium">Recibos</span>
-            </Link>
-            <Link
-              to="/water-readings/bulk"
-              onClick={() => setIsMenuOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors ${
-                location.pathname === '/water-readings/bulk'
+              className={`flex items-center gap-3 px-4 py-3.5 transition-all ${
+                location.pathname === '/water' || location.pathname.startsWith('/water')
                   ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
               <Droplet size={18} />
-              <span className="font-medium">Ingresar Medición</span>
-            </Link>
-            <Link
-              to="/water-readings/history"
-              onClick={() => setIsMenuOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors ${
-                location.pathname === '/water-readings/history'
-                  ? 'bg-yellow-50 text-yellow-700 border-l-4 border-yellow-500'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <Droplet size={18} />
-              <span className="font-medium">Lectura de Agua</span>
+              <span className="font-medium">Agua</span>
             </Link>
           </nav>
 
           {/* Divider */}
-          <div className="h-px bg-gray-200"></div>
+          <div className="h-px bg-gray-100 my-2"></div>
 
-          {/* Logout */}
+          {/* Salir */}
           <div className="p-2">
             <button
               onClick={() => {
                 setIsMenuOpen(false);
                 handleLogout();
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-md transition-colors font-medium"
+              className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-all font-medium text-sm"
             >
               <LogOut size={18} />
               <span>Salir</span>
@@ -130,7 +109,7 @@ export function Layout({ children, onLogout }: LayoutProps) {
       )}
 
       {/* Main Content */}
-      <main className="p-4 md:p-8 max-w-7xl mx-auto">
+      <main className="md:p-8 max-w-7xl mx-auto">
         {children}
       </main>
     </div>
