@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
 import { DepartmentDetailPage } from './pages/DepartmentDetail';
 import { WaterPage } from './pages/Water';
+import { NovedadesPage } from './pages/Novedades';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/novedades" element={<NovedadesPage />} />
         <Route
           path="/login"
           element={
@@ -68,7 +70,7 @@ function App() {
         <Route path="/receipts" element={<Navigate to="/water" replace />} />
         <Route path="/water-readings/bulk" element={<Navigate to="/water" replace />} />
         <Route path="/water-readings/history" element={<Navigate to="/water" replace />} />
-        <Route path="/" element={<Navigate to="/water" replace />} />
+        <Route path="/" element={<Navigate to="/novedades" replace />} />
       </Routes>
     </BrowserRouter>
   );
