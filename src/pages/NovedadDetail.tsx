@@ -78,7 +78,7 @@ export function NovedadDetailPage() {
         <div className={`p-8 md:p-12 mb-8 ${colors.bgLight} border-l-4 ${novedad.tipo === 'Administración' ? 'border-l-blue-500' : novedad.tipo === 'Mantenimiento' ? 'border-l-orange-500' : novedad.tipo === 'Seguridad' ? 'border-l-red-500' : 'border-l-purple-500'}`}>
           <div className="max-w-4xl">
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-5xl">{novedad.icono}</span>
+              {novedad.icono && <span className="text-5xl">{novedad.icono}</span>}
               <div>
                 <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-bold ${colors.badge} ${colors.text}`}>
                   {novedad.tipo}

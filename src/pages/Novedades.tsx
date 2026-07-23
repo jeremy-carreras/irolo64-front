@@ -77,7 +77,7 @@ export function NovedadesPage() {
                     <div className="flex items-start justify-between gap-3 md:gap-4 mb-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <span className="text-3xl">{novedad.icono}</span>
+                          {novedad.icono && <span className="text-3xl">{novedad.icono}</span>}
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${colors.badge} ${colors.text} flex-shrink-0`}>
                             {novedad.tipo}
                           </span>

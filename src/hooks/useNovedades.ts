@@ -9,7 +9,7 @@ export interface Novedad {
   descripcion: string;
   contenidoCompleto: string;
   prioridad?: 'alta' | 'media' | 'baja';
-  icono: string;
+  icono?: string;
 }
 
 export function useNovedades() {
