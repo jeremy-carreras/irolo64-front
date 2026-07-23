@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { departmentsAPI } from '../api/client';
 import { calculateReceipt } from '../utils/pdfGenerator';
 import { formatNumber } from '../utils/dateFormatter';
 import { Loader, AlertCircle } from 'lucide-react';
+import { WaterReading } from '../types';
 
 interface Receipt {
   id: string;
@@ -21,12 +22,6 @@ interface Department {
   id: string;
   code: string;
   waterReadings: WaterReading[];
-}
-
-interface WaterReading {
-  id: string;
-  readingDate: string;
-  meterReading: number;
 }
 
 const formatDate = (dateString: string) => {
