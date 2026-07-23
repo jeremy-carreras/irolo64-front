@@ -4,6 +4,7 @@ import { LoginPage } from './pages/Login';
 import { DepartmentDetailPage } from './pages/DepartmentDetail';
 import { WaterPage } from './pages/Water';
 import { NovedadesPage } from './pages/Novedades';
+import { NovedadDetailPage } from './pages/NovedadDetail';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/novedades" element={<NovedadesPage />} />
+        <Route path="/novedades/:id" element={<NovedadDetailPage />} />
         <Route
           path="/login"
           element={
