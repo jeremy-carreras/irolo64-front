@@ -20,99 +20,128 @@ export interface ReceiptCalculation {
   period: string;
 }
 
+const parseDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const extractDate = (dateTimeString: string): string => {
+  return dateTimeString.split('T')[0];
+};
+
 export function calculateReceipt(
   readings: WaterReading[],
   startDate: string,
   endDate: string,
   pricePerM3: number
 ): ReceiptCalculation {
-  // Parsear fechas (como fecha local, no UTC)
-  const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
-  const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
-  const start = new Date(startYear, startMonth - 1, startDay);
-  const end = new Date(endYear, endMonth - 1, endDay);
+  const start = parseDate(startDate);
+  const end = parseDate(endDate);
   const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
 
-  // Encontrar lecturas más cercanas
-  const readingsBefore = readings.filter(
-    (r) => new Date(r.readingDate) <= start
-  );
-  const readingsWithin = readings.filter(
-    (r) => new Date(r.readingDate) > start && new Date(r.readingDate) <= end
-  );
-  const readingsAfter = readings.filter(
-    (r) => new Date(r.readingDate) > end
-  );
-
-  const lastReadingBefore = readingsBefore.length > 0
-    ? readingsBefore[readingsBefore.length - 1]
-    : null;
-
-  const lastReadingWithin = readingsWithin.length > 0
-    ? readingsWithin[readingsWithin.length - 1]
-    : null;
-
-  const firstReadingAfter = readingsAfter.length > 0
-    ? readingsAfter[0]
-    : null;
-
-  // Calcular consumo con estimación
   let initialReading = 0;
   let finalReading = 0;
   let hasEstimation = false;
 
-  // Lectura inicial
-  if (lastReadingBefore) {
-    const daysSinceLast = Math.ceil(
-      (start.getTime() - new Date(lastReadingBefore.readingDate).getTime()) /
-      (1000 * 60 * 60 * 24)
+  // Buscar mediciones exactas en las fechas
+  const exactStartReading = readings.find(
+    (r) => extractDate(r.readingDate) === startDate
+  );
+  const exactEndReading = readings.find(
+    (r) => extractDate(r.readingDate) === endDate
+  );
+
+  // Si hay medición exacta en la fecha de inicio
+  if (exactStartReading) {
+    initialReading = parseFloat(String(exactStartReading.meterReading));
+  } else {
+    // Buscar última lectura anterior a la fecha de inicio
+    const readingsBefore = readings.filter(
+      (r) => extractDate(r.readingDate) < startDate
     );
 
-    // Buscar una lectura después de la inicial para calcular tasa
-    const nextReading = lastReadingWithin || firstReadingAfter;
+    if (readingsBefore.length > 0) {
+      const lastReadingBefore = readingsBefore[readingsBefore.length - 1];
 
-    if (daysSinceLast > 0 && nextReading) {
-      const daysBetweenReadings = Math.ceil(
-        (new Date(nextReading.readingDate).getTime() -
-        new Date(lastReadingBefore.readingDate).getTime()) /
-        (1000 * 60 * 60 * 24)
+      // Buscar una lectura posterior para calcular la tasa diaria
+      const readingsAfter = readings.filter(
+        (r) => extractDate(r.readingDate) > extractDate(lastReadingBefore.readingDate)
       );
-      const dailyConsumption =
-        (parseFloat(String(nextReading.meterReading)) -
-        parseFloat(String(lastReadingBefore.meterReading))) /
-        daysBetweenReadings;
 
-      initialReading = parseFloat(String(lastReadingBefore.meterReading)) +
-        (dailyConsumption * daysSinceLast);
-      hasEstimation = true;
-    } else {
-      initialReading = parseFloat(String(lastReadingBefore.meterReading));
+      if (readingsAfter.length > 0) {
+        const nextReading = readingsAfter[0];
+        const daysInPeriod = Math.ceil(
+          (parseDate(extractDate(nextReading.readingDate)).getTime() -
+            parseDate(extractDate(lastReadingBefore.readingDate)).getTime()) /
+          (1000 * 60 * 60 * 24)
+        );
+
+        if (daysInPeriod > 0) {
+          const dailyConsumption =
+            (parseFloat(String(nextReading.meterReading)) -
+              parseFloat(String(lastReadingBefore.meterReading))) /
+            daysInPeriod;
+
+          const daysSinceLastReading = Math.ceil(
+            (start.getTime() -
+              parseDate(extractDate(lastReadingBefore.readingDate)).getTime()) /
+            (1000 * 60 * 60 * 24)
+          );
+
+          initialReading =
+            parseFloat(String(lastReadingBefore.meterReading)) +
+            dailyConsumption * daysSinceLastReading;
+          hasEstimation = true;
+        }
+      } else {
+        initialReading = parseFloat(String(lastReadingBefore.meterReading));
+      }
     }
   }
 
-  // Lectura final
-  if (lastReadingWithin) {
-    finalReading = parseFloat(String(lastReadingWithin.meterReading));
-  } else if (firstReadingAfter) {
-    const daysUntilEnd = Math.ceil(
-      (end.getTime() - new Date(firstReadingAfter.readingDate).getTime()) /
-      (1000 * 60 * 60 * 24)
+  // Si hay medición exacta en la fecha de fin
+  if (exactEndReading) {
+    finalReading = parseFloat(String(exactEndReading.meterReading));
+  } else {
+    // Buscar primera lectura posterior a la fecha de fin
+    const readingsAfter = readings.filter(
+      (r) => extractDate(r.readingDate) > endDate
     );
 
-    if (daysUntilEnd > 0 && lastReadingBefore) {
-      const daysBetweenReadings = Math.ceil(
-        (new Date(firstReadingAfter.readingDate).getTime() -
-        new Date(lastReadingBefore.readingDate).getTime()) /
-        (1000 * 60 * 60 * 24)
-      );
-      const dailyConsumption =
-        (parseFloat(String(firstReadingAfter.meterReading)) -
-        parseFloat(String(lastReadingBefore.meterReading))) /
-        daysBetweenReadings;
+    if (readingsAfter.length > 0) {
+      const firstReadingAfter = readingsAfter[0];
 
-      finalReading = parseFloat(String(firstReadingAfter.meterReading)) -
-        (dailyConsumption * daysUntilEnd);
-      hasEstimation = true;
+      // Buscar última lectura anterior para calcular la tasa
+      const readingsBefore = readings.filter(
+        (r) => extractDate(r.readingDate) < extractDate(firstReadingAfter.readingDate)
+      );
+
+      if (readingsBefore.length > 0) {
+        const lastReadingBefore = readingsBefore[readingsBefore.length - 1];
+        const daysInPeriod = Math.ceil(
+          (parseDate(extractDate(firstReadingAfter.readingDate)).getTime() -
+            parseDate(extractDate(lastReadingBefore.readingDate)).getTime()) /
+          (1000 * 60 * 60 * 24)
+        );
+
+        if (daysInPeriod > 0) {
+          const dailyConsumption =
+            (parseFloat(String(firstReadingAfter.meterReading)) -
+              parseFloat(String(lastReadingBefore.meterReading))) /
+            daysInPeriod;
+
+          const daysUntilEnd = Math.ceil(
+            (end.getTime() -
+              parseDate(extractDate(firstReadingAfter.readingDate)).getTime()) /
+            (1000 * 60 * 60 * 24)
+          );
+
+          finalReading =
+            parseFloat(String(firstReadingAfter.meterReading)) -
+            dailyConsumption * daysUntilEnd;
+          hasEstimation = true;
+        }
+      }
     }
   }
 
