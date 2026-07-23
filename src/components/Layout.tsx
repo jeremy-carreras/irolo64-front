@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, Droplet, Newspaper } from 'lucide-react';
+import { Menu, X, LogOut, LogIn, Droplet, Newspaper } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,10 +11,21 @@ export function Layout({ children, onLogout }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
 
   const handleLogout = () => {
     onLogout();
+    navigate('/novedades');
+  };
+
+  const handleLogin = () => {
     navigate('/login');
+    setIsMenuOpen(false);
   };
 
   return (
@@ -84,18 +95,28 @@ export function Layout({ children, onLogout }: LayoutProps) {
           {/* Divider */}
           <div className="h-px bg-gray-100 my-2"></div>
 
-          {/* Salir */}
+          {/* Login/Logout */}
           <div className="p-2">
-            <button
-              onClick={() => {
-                setIsMenuOpen(false);
-                handleLogout();
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-all font-medium text-sm"
-            >
-              <LogOut size={18} />
-              <span>Salir</span>
-            </button>
+            {isAuthenticated ? (
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  handleLogout();
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-all font-medium text-sm"
+              >
+                <LogOut size={18} />
+                <span>Salir</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleLogin}
+                className="w-full flex items-center gap-3 px-4 py-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-medium text-sm"
+              >
+                <LogIn size={18} />
+                <span>Ingresar</span>
+              </button>
+            )}
           </div>
         </div>
       )}
