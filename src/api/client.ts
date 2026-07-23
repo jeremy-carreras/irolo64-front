@@ -38,6 +38,7 @@ export const authAPI = {
 
 export const departmentsAPI = {
   getAll: () => client.get('/departments'),
+  getAllWithReadings: () => client.get('/departments/with-readings/all'),
   getById: (id: string) => client.get(`/departments/${id}`),
   create: (data: any) => client.post('/departments', data),
   update: (id: string, data: any) =>
