@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { NovedadesLayout } from '../components/NovedadesLayout';
-import { Calendar, ArrowLeft, Loader } from 'lucide-react';
+import { ArrowLeft, Loader } from 'lucide-react';
 import { useNovedades } from '../hooks/useNovedades';
 
 export function NovedadDetailPage() {
