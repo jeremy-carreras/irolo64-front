@@ -12,7 +12,9 @@ export interface Novedad {
   urlImage?: string;
 }
 
-const CACHE_KEY = 'novedades_session_cache';
+// Cache global que persiste mientras la app esté en memoria
+// Se reinicia automáticamente al recargar la página
+let cachedNovedades: Novedad[] | null = null;
 
 export function useNovedades() {
   const [novedades, setNovedades] = useState<Novedad[]>([]);
@@ -21,23 +23,26 @@ export function useNovedades() {
   useEffect(() => {
     const fetchNovedades = async () => {
       try {
-        // Verificar si hay datos en sessionStorage (se limpia al recargar)
-        const cachedData = sessionStorage.getItem(CACHE_KEY);
-        if (cachedData) {
-          setNovedades(JSON.parse(cachedData));
+        // Si ya tenemos datos en cache, usarlos
+        if (cachedNovedades) {
+          setNovedades(cachedNovedades);
           setLoading(false);
           return;
         }
 
-        // Si no hay cache, hacer la llamada
+        // Si no hay cache, hacer la petición
         const response = await fetch('https://6a6380fbb30b52361e1a60e8.mockapi.io/news/news', {
           method: 'GET',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
         });
         const data = await response.json();
 
-        // Guardar en sessionStorage (se limpia al recargar la página)
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-
+        // Guardar en cache global
+        cachedNovedades = data;
         setNovedades(data);
       } catch (error) {
         console.error('Error fetching novedades:', error);
