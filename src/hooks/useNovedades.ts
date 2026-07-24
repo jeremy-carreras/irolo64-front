@@ -12,13 +12,7 @@ export interface Novedad {
   urlImage?: string;
 }
 
-const CACHE_KEY = 'novedades_cache';
-const CACHE_DURATION = 1000 * 60 * 30; // 30 minutos
-
-interface CacheData {
-  data: Novedad[];
-  timestamp: number;
-}
+const CACHE_KEY = 'novedades_session_cache';
 
 export function useNovedades() {
   const [novedades, setNovedades] = useState<Novedad[]>([]);
@@ -27,45 +21,27 @@ export function useNovedades() {
   useEffect(() => {
     const fetchNovedades = async () => {
       try {
-        // Verificar si hay datos en cache
-        const cachedData = localStorage.getItem(CACHE_KEY);
+        // Verificar si hay datos en sessionStorage (se limpia al recargar)
+        const cachedData = sessionStorage.getItem(CACHE_KEY);
         if (cachedData) {
-          const cache: CacheData = JSON.parse(cachedData);
-          const now = Date.now();
-
-          // Si el cache es válido (menos de 30 min), usarlo
-          if (now - cache.timestamp < CACHE_DURATION) {
-            setNovedades(cache.data);
-            setLoading(false);
-            return;
-          }
+          setNovedades(JSON.parse(cachedData));
+          setLoading(false);
+          return;
         }
 
-        // Si no hay cache válido, hacer la llamada
+        // Si no hay cache, hacer la llamada
         const response = await fetch('https://6a6380fbb30b52361e1a60e8.mockapi.io/news/news', {
           method: 'GET',
         });
         const data = await response.json();
 
-        // Guardar en cache
-        const cacheData: CacheData = {
-          data,
-          timestamp: Date.now()
-        };
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+        // Guardar en sessionStorage (se limpia al recargar la página)
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
 
         setNovedades(data);
       } catch (error) {
         console.error('Error fetching novedades:', error);
-
-        // Si falla y hay cache expirado, usarlo de todos modos
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        if (cachedData) {
-          const cache: CacheData = JSON.parse(cachedData);
-          setNovedades(cache.data);
-        } else {
-          setNovedades([]);
-        }
+        setNovedades([]);
       } finally {
         setLoading(false);
       }
