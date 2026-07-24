@@ -12,6 +12,14 @@ export interface Novedad {
   urlImage?: string;
 }
 
+const CACHE_KEY = 'novedades_cache';
+const CACHE_DURATION = 1000 * 60 * 30; // 30 minutos
+
+interface CacheData {
+  data: Novedad[];
+  timestamp: number;
+}
+
 export function useNovedades() {
   const [novedades, setNovedades] = useState<Novedad[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,19 +27,45 @@ export function useNovedades() {
   useEffect(() => {
     const fetchNovedades = async () => {
       try {
+        // Verificar si hay datos en cache
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const cache: CacheData = JSON.parse(cachedData);
+          const now = Date.now();
+
+          // Si el cache es válido (menos de 30 min), usarlo
+          if (now - cache.timestamp < CACHE_DURATION) {
+            setNovedades(cache.data);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Si no hay cache válido, hacer la llamada
         const response = await fetch('https://6a6380fbb30b52361e1a60e8.mockapi.io/news/news', {
           method: 'GET',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
         });
         const data = await response.json();
+
+        // Guardar en cache
+        const cacheData: CacheData = {
+          data,
+          timestamp: Date.now()
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+
         setNovedades(data);
       } catch (error) {
         console.error('Error fetching novedades:', error);
-        setNovedades([]);
+
+        // Si falla y hay cache expirado, usarlo de todos modos
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const cache: CacheData = JSON.parse(cachedData);
+          setNovedades(cache.data);
+        } else {
+          setNovedades([]);
+        }
       } finally {
         setLoading(false);
       }
