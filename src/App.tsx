@@ -6,6 +6,7 @@ import { WaterPage } from './pages/Water';
 import { NovedadesPage } from './pages/Novedades';
 import { NovedadDetailPage } from './pages/NovedadDetail';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ScrollToTop } from './components/ScrollToTop';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -39,6 +40,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/novedades" element={<NovedadesPage />} />
         <Route path="/novedades/:id" element={<NovedadDetailPage />} />
