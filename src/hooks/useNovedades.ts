@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import novedadesData from '../data/novedades.json';
 
 export interface Novedad {
   id: string;
@@ -10,6 +9,7 @@ export interface Novedad {
   contenidoCompleto: string;
   prioridad?: 'alta' | 'media' | 'baja';
   icono?: string;
+  urlImage?: string;
 }
 
 export function useNovedades() {
@@ -17,13 +17,27 @@ export function useNovedades() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simular pequeño delay para que sea realista
-    const timer = setTimeout(() => {
-      setNovedades(novedadesData.novedades);
-      setLoading(false);
-    }, 300);
+    const fetchNovedades = async () => {
+      try {
+        const response = await fetch('https://6a6380fbb30b52361e1a60e8.mockapi.io/news/news', {
+          method: 'GET',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        const data = await response.json();
+        setNovedades(data);
+      } catch (error) {
+        console.error('Error fetching novedades:', error);
+        setNovedades([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchNovedades();
   }, []);
 
   const getRelativeTime = (dateString: string): string => {

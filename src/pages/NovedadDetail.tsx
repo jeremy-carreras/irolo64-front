@@ -74,62 +74,65 @@ export function NovedadDetailPage() {
           Volver a novedades
         </button>
 
-        {/* Hero Section */}
-        <div className={`p-8 md:p-12 mb-8 ${colors.bgLight} border-l-4 ${novedad.tipo === 'Administración' ? 'border-l-blue-500' : novedad.tipo === 'Mantenimiento' ? 'border-l-orange-500' : novedad.tipo === 'Seguridad' ? 'border-l-red-500' : 'border-l-purple-500'}`}>
-          <div className="max-w-4xl">
-            <div className="flex items-center gap-3 mb-6">
-              {novedad.icono && <span className="text-5xl">{novedad.icono}</span>}
-              <div>
-                <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-bold ${colors.badge} ${colors.text}`}>
-                  {novedad.tipo}
+        {/* Hero Section with Image */}
+        {novedad.urlImage && (
+          <div
+            className="w-full h-[300px] md:h-[400px] rounded-lg mb-8 bg-gradient-to-br from-blue-50 to-yellow-50"
+            style={{
+              backgroundImage: `url(${novedad.urlImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          />
+        )}
+
+        {/* Title & Meta Section */}
+        <div className={`p-6 md:p-8 mb-8 bg-gradient-to-r ${colors.bgLight} rounded-lg border-l-4 ${novedad.tipo === 'Administración' ? 'border-l-blue-500' : novedad.tipo === 'Mantenimiento' ? 'border-l-orange-500' : novedad.tipo === 'Seguridad' ? 'border-l-red-500' : 'border-l-purple-500'}`}>
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-3 items-center flex-wrap">
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${colors.badge} ${colors.text}`}>
+                {novedad.tipo}
+              </span>
+              {novedad.prioridad && (
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+                  novedad.prioridad === 'alta'
+                    ? 'bg-red-100 text-red-700'
+                    : novedad.prioridad === 'media'
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-green-100 text-green-700'
+                }`}>
+                  {novedad.prioridad.charAt(0).toUpperCase() + novedad.prioridad.slice(1)}
                 </span>
-              </div>
+              )}
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-bold mb-4 leading-tight text-gray-900">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
               {novedad.titulo}
             </h1>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-gray-600">
-              <div className="flex items-center gap-2">
-                <Calendar size={18} />
-                <span className="font-medium">{formatDate(novedad.fecha)}</span>
-              </div>
-              <span className="text-sm text-gray-500 font-medium">
-                {getRelativeTime(novedad.fecha)}
-              </span>
-              {novedad.prioridad && (
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                    novedad.prioridad === 'alta'
-                      ? 'bg-red-100 text-red-700'
-                      : novedad.prioridad === 'media'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-green-100 text-green-700'
-                  }`}
-                >
-                  ⚡ {novedad.prioridad.charAt(0).toUpperCase() + novedad.prioridad.slice(1)}
-                </span>
-              )}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm text-gray-600">
+              <span className="font-medium">{formatDate(novedad.fecha)}</span>
+              <span className="hidden sm:inline text-gray-400">•</span>
+              <span className="text-gray-500">{getRelativeTime(novedad.fecha)}</span>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-2xl shadow-md p-8 md:p-12 max-w-4xl">
-          <div className="prose prose-lg max-w-none">
+        <div className="bg-white rounded-lg shadow-sm p-6 md:p-8 mb-8">
+          <div className="max-w-3xl mx-auto">
             {novedad.contenidoCompleto.split('\n').map((paragraph: string, index: number) => (
-              <p key={index} className="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap text-justify">
+              <p key={index} className="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">
                 {paragraph}
               </p>
             ))}
           </div>
 
           {/* Action Button */}
-          <div className="mt-12 pt-8 border-t border-gray-200">
+          <div className="mt-8 pt-6 border-t border-gray-200">
             <button
               onClick={() => navigate('/novedades')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
             >
               <ArrowLeft size={18} />
               Volver a novedades
