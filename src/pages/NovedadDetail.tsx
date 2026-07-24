@@ -87,17 +87,15 @@ export function NovedadDetailPage() {
         </div>
 
         {/* Hero Image */}
-        <div className="w-full h-[200px] md:h-[380px] -mx-4 md:mx-0 md:rounded-lg mb-6 md:mb-8 bg-gradient-to-br from-blue-50 to-yellow-50 overflow-hidden md:shadow-lg">
-          {novedad.urlImage ? (
+        {novedad.urlImage && (
+          <div className="w-full h-[200px] md:h-[380px] -mx-4 md:mx-0 md:rounded-lg mb-6 md:mb-8 overflow-hidden md:shadow-lg">
             <img
               src={novedad.urlImage}
               alt={novedad.titulo}
               className="w-full h-full object-cover"
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-5xl">📰</div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Metadata Bar */}
         <div className="flex flex-wrap gap-3 md:gap-4 items-center mb-6 md:mb-8 pb-6 border-b border-gray-200 px-4 md:px-0">
