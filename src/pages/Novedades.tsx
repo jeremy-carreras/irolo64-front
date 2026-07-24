@@ -38,7 +38,7 @@ export function NovedadesPage() {
       <div className="pb-12">
         {/* Novedades List */}
         <div className="space-y-6 md:space-y-4">
-          {novedades.map((novedad) => {
+          {[...novedades].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()).map((novedad) => {
             const borderColor =
               novedad.tipo === "Administración"
                 ? "border-l-blue-500"
