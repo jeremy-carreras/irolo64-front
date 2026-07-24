@@ -122,7 +122,7 @@ export function DepartmentDetailPage({
     <Layout onLogout={onLogout}>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 mt-5">
           <button
             onClick={() => navigate('/departments')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
