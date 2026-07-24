@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
-import { ReceiptCalculationTable } from '../components/ReceiptCalculationTable';
-import { ReceiptConsumptionTable } from '../components/ReceiptConsumptionTable';
 import '../styles/ReceiptsAdmin.css';
 import client from '../api/client';
 import { Plus, ChevronDown, Edit2, Trash2, Eye, X, Zap } from 'lucide-react';
 import { formatCurrency, formatNumber } from '../utils/dateFormatter';
 import { estimateConsumptionAdvanced } from '../utils/consumptionEstimator';
 import { waterReadingsAPI } from '../api/client';
+import { TableSkeleton } from '../components/LoadingSkeletons';
 
 interface Receipt {
   id: string;
@@ -42,6 +41,7 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -49,7 +49,6 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const [allReadings, setAllReadings] = useState<any[]>([]);
   const [estimationConfidence, setEstimationConfidence] = useState(0);
-  const [activeTab, setActiveTab] = useState<'load' | 'receipts' | 'consumption'>('load');
 
   useEffect(() => {
     loadReceipts();
@@ -108,6 +107,7 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
       setError('Error al cargar recibos');
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   };
 
@@ -213,29 +213,6 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
     <>
     <div className="receipts-admin">
         <h1>Gestión de Recibos</h1>
-
-        <div className="tabs-container">
-          <button
-            className={`tab-button ${activeTab === 'load' ? 'active' : ''}`}
-            onClick={() => setActiveTab('load')}
-          >
-            Cargar Recibo
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'receipts' ? 'active' : ''}`}
-            onClick={() => setActiveTab('receipts')}
-          >
-            Recibos
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'consumption' ? 'active' : ''}`}
-            onClick={() => setActiveTab('consumption')}
-          >
-            Consumo
-          </button>
-        </div>
-
-        <div className={`tab-content ${activeTab === 'load' ? 'active' : ''}`}>
 
       <div className={`form-accordion ${showForm ? 'open' : ''}`}>
         <button
@@ -382,26 +359,17 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
         </div>
         )}
       </div>
-        </div>
 
-        <div className={`tab-content ${activeTab === 'receipts' ? 'active' : ''}`}>
-          <h2 className='pb-3 px-1'>Tabla de Cálculo por Departamento</h2>
-          <ReceiptCalculationTable receipts={receipts} />
-        </div>
-
-        <div className={`tab-content ${activeTab === 'consumption' ? 'active' : ''}`}>
-          <h2 className='pb-3 px-1'>Tabla de Consumo por Departamento</h2>
-          <ReceiptConsumptionTable receipts={receipts} />
-        </div>
-
-      <div className={`receipts-list p-1 ${activeTab === 'load' ? '' : 'hidden-tab'}`}>
+      <div className={`receipts-list p-1`}>
         <h2 className='pb-3 px-1'>Recibos cargados</h2>
-        {receipts.length === 0 ? (
+        {initialLoading ? (
+          <TableSkeleton />
+        ) : receipts.length === 0 ? (
           <p>No hay recibos cargados</p>
         ) : (
           <>
             {/* Table view for larger screens */}
-            <div className="table-container">
+            <div className="table-container hidden md:block">
               <table className="receipts-table">
                 <thead>
                   <tr>

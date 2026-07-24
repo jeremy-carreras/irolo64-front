@@ -97,7 +97,8 @@ export function WaterReadingFormModal({
               name="readingDate"
               value={formData.readingDate}
               onChange={handleChange}
-              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
+              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all text-base"
+              style={{ WebkitAppearance: 'none' }}
               required
             />
           </div>

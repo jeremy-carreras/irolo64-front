@@ -109,9 +109,13 @@ export function DepartmentsPage({ onLogout, layout = true }: DepartmentsPageProp
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold text-gray-900">Departamentos</h1>
-            <p className="text-gray-600 mt-1">
-              Gestiona los {departments.length} departamentos de Palma Irolo
-            </p>
+            {loading ? (
+              <div className="h-5 bg-gray-300 rounded w-56 animate-pulse mt-1"></div>
+            ) : (
+              <p className="text-gray-600 mt-1">
+                Gestiona los {departments.length} departamentos de Palma Irolo
+              </p>
+            )}
           </div>
           <button
             onClick={() => handleOpenModal()}

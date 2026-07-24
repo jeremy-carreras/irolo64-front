@@ -1,35 +1,11 @@
-import { useNovedades } from '../hooks/useNovedades';
-import { NovedadesLayout } from '../components/NovedadesLayout';
-import { Calendar, Newspaper, Loader } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNovedades } from "../hooks/useNovedades";
+import { NovedadesLayout } from "../components/NovedadesLayout";
+import { Loader, Newspaper } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function NovedadesPage() {
   const navigate = useNavigate();
   const { novedades, loading, getRelativeTime } = useNovedades();
-
-  const getCategoryColor = (tipo: string) => {
-    switch (tipo.toLowerCase()) {
-      case 'administración':
-        return { text: 'text-blue-700', badge: 'bg-blue-100' };
-      case 'mantenimiento':
-        return { text: 'text-orange-700', badge: 'bg-orange-100' };
-      case 'seguridad':
-        return { text: 'text-red-700', badge: 'bg-red-100' };
-      case 'aviso':
-        return { text: 'text-purple-700', badge: 'bg-purple-100' };
-      default:
-        return { text: 'text-gray-700', badge: 'bg-gray-100' };
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   if (loading) {
     return (
@@ -43,91 +19,105 @@ export function NovedadesPage() {
 
   return (
     <NovedadesLayout>
-      <div className="space-y-10 py-8">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-gray-100 to-gray-50 rounded p-6 md:p-12 text-gray-900 shadow-sm border border-gray-200">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                <Newspaper size={20} className="text-gray-600" />
-              </div>
-              <span className="text-gray-600 font-semibold text-sm md:text-base">Centro de Novedades</span>
-            </div>
-            <h1 className="text-2xl md:text-4xl font-bold mb-3">
-              Bienvenido al portal de novedades
-            </h1>
-            <p className="text-gray-600 text-sm md:text-lg">
-              Para que te mantengas informado de las últimas actualizaciones, mantenimiento y eventos de tu residencial
-            </p>
-          </div>
+      {/* Banner Image with Header Overlay */}
+      <div className="relative rounded overflow-hidden h-[300px] md:h-[400px] mb-8 flex items-center justify-center">
+        <img
+          src="https://assets.easybroker.com/property_images/3888632/63936629/EB-NX8632.JPG?version=1689724045"
+          alt="Novedades banner"
+          className="absolute inset-0 w-full h-full object-cover object-bottom"
+        />
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="relative text-center text-white z-10">
+          <h1 className="text-4xl md:text-5xl font-bold mb-3">Novedades</h1>
+          <p className="text-base md:text-lg font-medium">
+            Mantente informado de los últimos eventos y actualizaciones
+          </p>
         </div>
+      </div>
 
+      <div className="pb-12">
         {/* Novedades List */}
-        <div className="space-y-6">
-          {novedades.map((novedad, index) => {
-            const colors = getCategoryColor(novedad.tipo);
+        <div className="space-y-6 md:space-y-4">
+          {novedades.map((novedad) => {
+            const borderColor =
+              novedad.tipo === "Administración"
+                ? "border-l-blue-500"
+                : novedad.tipo === "Mantenimiento"
+                  ? "border-l-orange-500"
+                  : novedad.tipo === "Seguridad"
+                    ? "border-l-red-500"
+                    : "border-l-purple-500";
+
+            const badgeColor =
+              novedad.tipo === "Administración"
+                ? "bg-blue-100 text-blue-700"
+                : novedad.tipo === "Mantenimiento"
+                  ? "bg-orange-100 text-orange-700"
+                  : novedad.tipo === "Seguridad"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-purple-100 text-purple-700";
+
+            const priorityBadgeColor =
+              novedad.prioridad === "alta"
+                ? "bg-red-100 text-red-700"
+                : novedad.prioridad === "media"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-green-100 text-green-700";
+
             return (
               <article
                 key={novedad.id}
-                className={`group bg-white shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-l-4 ${novedad.tipo === 'Administración' ? 'border-l-blue-500' : novedad.tipo === 'Mantenimiento' ? 'border-l-orange-500' : novedad.tipo === 'Seguridad' ? 'border-l-red-500' : 'border-l-purple-500'}`}
+                onClick={() => navigate(`/novedades/${novedad.id}`)}
+                className={`group bg-white rounded-lg border-l-4 ${borderColor} cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden flex flex-col md:grid md:grid-cols-[1fr_220px_auto] gap-0 md:gap-6 p-4 md:p-6 min-h-[120px]`}
               >
-                <div className="p-5 md:p-7">
-                  {/* Header */}
-                  <div className="mb-4">
-                    <div className="flex items-start justify-between gap-3 md:gap-4 mb-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          {novedad.icono && <span className="text-3xl">{novedad.icono}</span>}
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${colors.badge} ${colors.text} flex-shrink-0`}>
-                            {novedad.tipo}
-                          </span>
-                          <span className="text-xs text-gray-400 font-medium hidden sm:inline">
-                            {getRelativeTime(novedad.fecha)}
-                          </span>
-                        </div>
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight">
-                          {novedad.titulo}
-                        </h2>
-                      </div>
-                      <div className="text-right flex-shrink-0 hidden md:block">
-                        <div className="text-2xl font-bold text-gray-200 group-hover:text-gray-300 transition-colors">
-                          {String(index + 1).padStart(2, '0')}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="text-xs text-gray-400 font-medium sm:hidden inline-block">
+                {/* Image (Mobile first) */}
+                {novedad.urlImage && (
+                  <div
+                    className="w-full h-[140px] rounded-md bg-gradient-to-br from-blue-50 to-yellow-50 flex-shrink-0 mb-3 md:mb-0 md:order-2"
+                    style={{
+                      backgroundImage: `url(${novedad.urlImage})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                )}
+
+                {/* Content */}
+                <div className="flex flex-col justify-center gap-3 md:gap-2 md:order-1">
+                  <div className="flex gap-2 items-center flex-wrap">
+                    <span
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${badgeColor}`}
+                    >
+                      {novedad.tipo}
+                    </span>
+                    {novedad.prioridad && (
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded text-xs font-semibold ${priorityBadgeColor}`}
+                      >
+                        {novedad.prioridad === "alta"
+                          ? "Alta"
+                          : novedad.prioridad === "media"
+                            ? "Media"
+                            : "Baja"}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500 font-medium">
                       {getRelativeTime(novedad.fecha)}
                     </span>
                   </div>
 
-                  {/* Content */}
-                  <p className="text-gray-700 leading-relaxed text-sm md:text-base mb-5 line-clamp-2">
+                  <h2 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug">
+                    {novedad.titulo}
+                  </h2>
+
+                  <p className="text-sm md:text-base text-gray-600 line-clamp-2 md:line-clamp-2 leading-relaxed">
                     {novedad.descripcion}
                   </p>
+                </div>
 
-                  {/* Footer */}
-                  <div className="pt-4 border-t border-gray-100">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar size={12} className="text-gray-400" />
-                          <span className="font-medium text-xs">{formatDate(novedad.fecha)}</span>
-                        </div>
-                        {novedad.prioridad && (
-                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold ${novedad.prioridad === 'alta' ? 'bg-red-100 text-red-700' : novedad.prioridad === 'media' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
-                            {novedad.prioridad === 'alta' ? '⚡ Alta' : novedad.prioridad === 'media' ? '⚠️ Media' : '✓ Baja'}
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => navigate(`/novedades/${novedad.id}`)}
-                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-bold transition-all text-sm hover:gap-3 self-start md:self-auto"
-                      >
-                        <span>Leer más</span>
-                        <span className="group-hover:translate-x-1 transition-transform">→</span>
-                      </button>
-                    </div>
-                  </div>
+                {/* Arrow (Desktop only) */}
+                <div className="hidden md:flex items-center justify-center text-2xl text-blue-500 group-hover:translate-x-1 transition-transform md:order-3">
+                  →
                 </div>
               </article>
             );
