@@ -73,7 +73,7 @@ export function NovedadDetailPage() {
     <NovedadesLayout>
       <div className="pb-12">
         {/* Sticky Header */}
-        <div className="sticky top-0 bg-white/95 backdrop-blur-sm py-3 mb-6 md:mb-8 border-b border-gray-200 z-40">
+        <div className="sticky top-0 bg-white/95 backdrop-blur-sm py-3 mb-6 md:mb-8 border-b border-gray-200 z-10">
           <div className="flex items-center gap-3 px-4 md:px-0">
             <button
               onClick={() => navigate('/novedades')}
