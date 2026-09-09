@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Layout } from "../components/Layout";
 import { waterReadingsAPI, departmentsAPI, receiptsAPI } from "../api/client";
 import { Department, WaterReading } from "../types";
-import { formatNumber } from "../utils/dateFormatter";
+import { formatDate, formatNumber } from "../utils/dateFormatter";
 import { ReceiptCalculationTable } from "../components/ReceiptCalculationTable";
 import { ReceiptConsumptionTable } from "../components/ReceiptConsumptionTable";
 import {
@@ -103,7 +103,7 @@ export default function WaterReadingsHistory({
         ),
       }));
 
-      const sortedDates = Array.from(datesSet).sort();
+      const sortedDates = Array.from(datesSet).sort().reverse();
       setUniqueDates(sortedDates);
       setHistory(historyData);
       setSelectedDepartments(new Set(historyData.map((h) => h.department.id)));
@@ -169,7 +169,7 @@ export default function WaterReadingsHistory({
   });
 
   const content = (
-    <div className="max-w-full mx-auto px-4 sm:px-6 py-6">
+    <div className="max-w-full mx-auto px-2 sm:px-3 py-3">
       <h1 className="text-1xl sm:text-2xl font-bold text-gray-900 mb-6">
         Lectura de Agua
       </h1>
@@ -241,7 +241,7 @@ export default function WaterReadingsHistory({
                     key={date}
                     className="px-6 py-2.5 text-center font-bold text-gray-900 border-r whitespace-nowrap text-sm"
                   >
-                    {date}
+                    {formatDate(date)}
                   </th>
                 ))}
               </tr>

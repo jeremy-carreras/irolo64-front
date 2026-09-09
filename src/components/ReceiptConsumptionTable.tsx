@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { departmentsAPI } from '../api/client';
 import { calculateReceipt } from '../utils/pdfGenerator';
-import { formatNumber } from '../utils/dateFormatter';
+import { formatDate, formatNumber } from '../utils/dateFormatter';
 import { Loader, AlertCircle } from 'lucide-react';
 import { WaterReading } from '../types';
 
@@ -23,11 +23,6 @@ interface Department {
   code: string;
   waterReadings: WaterReading[];
 }
-
-const formatDate = (dateString: string) => {
-  const [year, month, day] = dateString.split('-');
-  return `${day}/${month}/${year}`;
-};
 
 export function ReceiptConsumptionTable({ receipts }: ReceiptConsumptionTableProps) {
   const [departments, setDepartments] = useState<Department[]>([]);

@@ -76,7 +76,7 @@ export function WaterModule({ onLogout }: WaterModuleProps) {
       </div>
 
       {/* Tab Content */}
-      <div className="p-2 md:p-8 max-w-7xl mx-auto">
+      <div className="p-2 md:p-1 max-w-7xl mx-auto">
         {renderContent()}
       </div>
     </div>
