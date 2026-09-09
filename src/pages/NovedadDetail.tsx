@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { NovedadesLayout } from '../components/NovedadesLayout';
 import { ArrowLeft, Loader } from 'lucide-react';
 import { useNovedades } from '../hooks/useNovedades';
+import { formatDate } from '../utils/dateFormatter';
 
 export function NovedadDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -35,15 +36,6 @@ export function NovedadDetailPage() {
       </NovedadesLayout>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   const getBorderColor = (tipo: string) => {
     switch (tipo.toLowerCase()) {

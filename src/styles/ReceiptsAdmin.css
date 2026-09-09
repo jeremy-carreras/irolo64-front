@@ -1,7 +1,7 @@
 .receipts-admin {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 5px;
 }
 
 .receipts-admin h1 {
@@ -227,6 +227,59 @@ form {
   background: #f9f9f9;
   padding: 20px;
   border-radius: 8px;
+}
+
+.btn-report {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+  color: #1f2937;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px rgba(161, 98, 7, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-report svg {
+  color: #1f2937;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.btn-report:hover:not(:disabled) {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+  color: #111827;
+  box-shadow: 0 8px 12px rgba(161, 98, 7, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-report:hover:not(:disabled) svg {
+  transform: scale(1.08);
+}
+
+.btn-report:active:not(:disabled) {
+  box-shadow: 0 3px 5px rgba(161, 98, 7, 0.2);
+  transform: translateY(0);
+}
+
+.btn-report:focus-visible {
+  outline: 3px solid rgba(250, 204, 21, 0.45);
+  outline-offset: 2px;
+}
+
+.btn-report:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .receipts-list h2 {
@@ -702,7 +755,7 @@ form {
     width: 100%;
   }
   .receipts-admin {
-    padding: 15px;
+    padding: 5px;
   }
 
   .receipts-admin h1 {

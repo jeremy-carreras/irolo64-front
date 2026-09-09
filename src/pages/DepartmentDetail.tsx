@@ -142,7 +142,7 @@ export function DepartmentDetailPage({
 
         {/* Info Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mx-3">
             <p className="text-gray-600 text-sm font-medium mb-2">Estado</p>
             <div className="flex items-center gap-2">
               <span
@@ -155,7 +155,7 @@ export function DepartmentDetailPage({
               </p>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mx-3">
             <p className="text-gray-600 text-sm font-medium mb-2">Consumo Total</p>
             <div className="flex items-center gap-2">
               <Droplet className="text-blue-500" size={20} />
@@ -164,7 +164,7 @@ export function DepartmentDetailPage({
             </div>
           </div>
           {lastReading && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mx-3">
               <p className="text-gray-600 text-sm font-medium mb-2">Última Lectura</p>
               <p className="text-2xl font-bold text-gray-900">
                 {formatNumber(lastReading.meterReading)} m³
@@ -178,7 +178,7 @@ export function DepartmentDetailPage({
 
         {/* Details Card */}
         {department.ownerName && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mx-2">
             <h2 className="text-lg font-bold text-gray-900 mb-3">Propietario/Inquilino</h2>
             <p className="text-gray-800">{department.ownerName}</p>
           </div>

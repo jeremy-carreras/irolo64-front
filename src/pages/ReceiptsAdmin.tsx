@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
 import '../styles/ReceiptsAdmin.css';
 import client from '../api/client';
-import { Plus, ChevronDown, Edit2, Trash2, Eye, X, Zap } from 'lucide-react';
-import { formatCurrency, formatNumber } from '../utils/dateFormatter';
+import { Plus, ChevronDown, Edit2, Trash2, Eye, X, Zap, BarChart3 } from 'lucide-react';
+import { formatCurrency, formatDate, formatNumber } from '../utils/dateFormatter';
 import { estimateConsumptionAdvanced } from '../utils/consumptionEstimator';
-import { waterReadingsAPI } from '../api/client';
+import { departmentsAPI, waterReadingsAPI } from '../api/client';
 import { TableSkeleton } from '../components/LoadingSkeletons';
+import { GeneralConsumptionReportModal } from '../components/GeneralConsumptionReportModal';
+import { DepartmentWithReadings } from '../utils/generalConsumptionReport';
 
 interface Receipt {
   id: string;
@@ -23,11 +25,6 @@ interface ReceiptsAdminProps {
   onLogout: () => void;
   layout?: boolean;
 }
-
-const formatDate = (dateString: string) => {
-  const [year, month, day] = dateString.split('T')[0].split('-');
-  return `${day}/${month}/${year}`;
-};
 
 export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdminProps) {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -47,13 +44,25 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+  const [generalReportReceipt, setGeneralReportReceipt] = useState<Receipt | null>(null);
   const [allReadings, setAllReadings] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<DepartmentWithReadings[]>([]);
   const [estimationConfidence, setEstimationConfidence] = useState(0);
 
   useEffect(() => {
     loadReceipts();
     loadAllReadings();
+    loadDepartments();
   }, []);
+
+  const loadDepartments = async () => {
+    try {
+      const response = await departmentsAPI.getAllWithReadings();
+      setDepartments((response.data || []) as DepartmentWithReadings[]);
+    } catch (err) {
+      console.error('Error loading departments with readings:', err);
+    }
+  };
 
   const loadAllReadings = async () => {
     try {
@@ -212,7 +221,7 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
   const content = (
     <>
     <div className="receipts-admin">
-        <h1>Gestión de Recibos</h1>
+      <h1>Gestión de Recibos</h1>
 
       <div className={`form-accordion ${showForm ? 'open' : ''}`}>
         <button
@@ -369,7 +378,7 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
         ) : (
           <>
             {/* Table view for larger screens */}
-            <div className="table-container hidden md:block">
+            <div className="table-container hidden md:block overflow-x-auto">
               <table className="receipts-table">
                 <thead>
                   <tr>
@@ -392,6 +401,15 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
                       <td>{formatCurrency(receipt.pricePerM3)}</td>
                       <td>{formatDate(receipt.paymentDeadline)}</td>
                       <td className="actions">
+                        <button
+                          onClick={() => setGeneralReportReceipt(receipt)}
+                          className="btn-report"
+                          title="Generar reporte general de consumo"
+                          disabled={loading || departments.length === 0}
+                        >
+                          <BarChart3 size={16} />
+                          <span>Generar reporte</span>
+                        </button>
                         {receipt.pdfUrl && (
                           <button
                             onClick={() => setPdfPreviewUrl(receipt.pdfUrl!)}
@@ -452,6 +470,15 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
                     </div>
                   </div>
                   <div className="card-actions">
+                    <button
+                      onClick={() => setGeneralReportReceipt(receipt)}
+                      className="btn-report"
+                      title="Generar reporte general de consumo"
+                      disabled={loading || departments.length === 0}
+                    >
+                      <BarChart3 size={16} />
+                      <span>Generar reporte</span>
+                    </button>
                     {receipt.pdfUrl && (
                       <button
                         onClick={() => setPdfPreviewUrl(receipt.pdfUrl!)}
@@ -568,6 +595,13 @@ export default function ReceiptsAdmin({ onLogout, layout = true }: ReceiptsAdmin
           </div>
         </div>
       )}
+
+      <GeneralConsumptionReportModal
+        isOpen={generalReportReceipt !== null}
+        receipt={generalReportReceipt}
+        departments={departments}
+        onClose={() => setGeneralReportReceipt(null)}
+      />
     </>
   );
 
